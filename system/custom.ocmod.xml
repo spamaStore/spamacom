@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Custom_code</name>
+    <code>Custom_code</code>
+    <version>3.0</version>
+    <author>yogeshthakur01@gmail.com</author>
+    <link>https://www.businessblingers.com</link>
+
+
+
+    <file path="catalog/language/en-gb/product/product.php">
+        <operation>
+            <search><![CDATA[
+			$_['text_search']              = 'Search';
+            ]]></search>
+            <add position="before"><![CDATA[
+            $_['text_vatinc']              = 'inclusive of VAT';
+            ]]></add>
+        </operation>
+    </file>
+	<file path="catalog/language/ar/product/product.php">
+        <operation>
+            <search><![CDATA[
+			$_['text_search']         = 'بحث';
+            ]]></search>
+            <add position="before"><![CDATA[
+             $_['text_vatinc']              = 'شامل الضريبة المضافة';
+            ]]></add>
+        </operation>
+    </file>
+	 <file path="catalog/view/theme/journal3/template/product/product.twig">
+        <operation>
+            <search><![CDATA[
+            {% if tax %}
+            ]]></search>
+            <add position="before"><![CDATA[
+            <div class="vat-cl">{{text_vatinc}}</div>
+            ]]></add>
+        </operation>
+		<operation>
+            <search><![CDATA[
+            ({{ option_value.price_prefix }}{{ option_value.price }})
+            ]]></search>
+            <add position="replace"><![CDATA[]]></add>
+        </operation>
+    </file>
+	 
+</modification>

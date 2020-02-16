@@ -1,0 +1,535 @@
+<style media="screen" type="text/css">
+    .perms_group {
+        padding: 5px 10px 5px 0px;
+        font-weight: bold;
+        display: inline-block;
+        width: auto;
+        text-align: left;
+    }
+
+    .perms_group:not(:last-child) {
+        margin-bottom: 8px;
+    }
+
+    .perms_label {
+        margin: 6px 0 0 15px;
+        font-weight: normal;
+    }
+</style>
+<script type="text/javascript" src="view/javascript/qrcode.min.js"></script>
+
+
+    {{ header }} {{ column_left }}
+    <div id="content">
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="pull-right">
+                    <button type="button" id="button_save_continue" form="form_mobassist" data-toggle="tooltip" title="{{ button_save_continue }}" class="btn btn-success"><i class="fa fa-check"></i></button>
+                    <button type="button" id="button_save_not_continue" form="form_mobassist" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                    <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+                <h1>{{ heading_title }}</h1>
+                <ul class="breadcrumb">
+                    {% for breadcrumb in breadcrumbs %}
+                        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="container-fluid">
+            {% if error_warning %}
+                <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i>{{ error_warning }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% endif %}
+
+            {% if saving_success %}
+                <div class="alert alert-success"><i class="fa fa-check-circle"></i>{{ saving_success }}
+                    <button type="button" class="close" data-dismiss="alert">x</button>
+                </div>
+            {% endif %}
+
+            {% if message_info %}
+                <div class="alert alert-info"><i class="fa fa-info-circle"></i>{{ message_info }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% endif %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-pencil"></i>{{ text_edit }}</h3>
+                    <div style="display: inline-block; margin-right: 18px; margin-bottom: 15px; float: right">
+                            <span style="margin-right: 15px">
+                                {{ module_version }}<b>{{ connector_version }}</b>
+                            </span>
+                        {{ useful_links }}
+                        <a href="http://www.opencart.com/index.php?route=extension/extension/info&extension_id=19950" class="link" target="_blank">{{ check_new_version }}</a> |
+                        <a href="https://support.emagicone.com/submit_ticket" class="link" target="_blank">{{ submit_ticket }}</a> |
+                        <a href="http://mobile-store-assistant-help.emagicone.com/4-opencart-mobile-assistant-installation-instructions" class="link" target="_blank">{{ documentation }}</a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form_mobassist" class="form-horizontal">
+                        <input type="hidden" name="save_continue" id="save_continue" value="0">
+                        <input type="hidden" name="bulk_actions" id="bulk_actions" value="0">
+                        <div class="col-sm-2">
+                            <ul class="nav nav-pills nav-stacked" id="users">
+                                {% set user_row = 1 %}
+                                {% for user in users %}
+                                    <li>
+                                        <a href="#tab-user{{ user.user_id }}" data-toggle="tab"><i class="fa fa-minus-circle" onclick="$('#users a[href=\'#tab-user{{ user.user_id }}\']').parent().remove(); $('#tab-user{{ user.user_id }}').remove(); $('#users a:first').tab('show');" title="Delete user"></i>{{ mac_user ~ ' ' ~ user.username }}</a>
+                                    </li>
+                                {% set user_row = user_row + 1 %}
+                                {% endfor %}
+                                <li id="user-add" style="cursor:pointer;"><a onclick="addUser();"><i class="fa fa-plus-circle"></i>{{ mac_add_user }}</a></li>
+                            </ul>
+                            <hr style="margin-top: 30px;">
+                            <div style="margin-top: 25px; text-align: center;">
+                                <span>{{ mac_get_app_from_gp }}</span>
+                                <a class="ma_play" href="https://goo.gl/HyMsF1" target="_blank">
+                                    <div id="mobassist_app_url_qr" style="margin-top: 7px; margin-bottom: 4px; display: inline-block;"></div><br>
+                                    <span>{{ mac_click_or_scan_qr }}</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-10">
+                            <div class="tab-content">
+
+                                {% set user_row = 1 %}
+                                {% set active_user_row = user_id_check %}
+                                {% for user in users %}
+
+                                <div class="tab-pane" id="tab-user{{ user.user_id }}">
+                                    <input type="hidden" name="user[{{ user_row }}][user_id]" value="{{ user.user_id }}" />
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                                        <div class="col-sm-10">
+                                            <select name="user[{{ user_row }}][user_status]" id="input-status" class="form-control">
+                                                {% if user.user_status %}
+                                                <option value="1" selected="selected">{{ text_enabled }}</option>
+                                                <option value="0">{{ text_disabled }}</option>
+                                                {% else %}
+                                                <option value="1">{{ text_enabled }}</option>
+                                                <option value="0" selected="selected">{{ text_disabled }}</option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group required">
+                                        <label class="col-sm-2 control-label" for="mobassist_login{{ user_row }}"><span data-toggle="tooltip" title="{{ help_login }}">{{ entry_login }}</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="hidden" id="mobassist_login_old{{ user_row }}" value="{{ user.username }}"/>
+                                            <input type="text" id="mobassist_login{{ user_row }}" class="form-control mobassist_login" data-user_row="{{ user_row }}" name="user[{{ user_row }}][username]" value="{{ user.username }}" placeholder="{{ entry_login }}" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="mobassist_pass{{ user_row }}"><span data-toggle="tooltip" title="{{ help_pass }}">{{ entry_pass }}</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="hidden" id="mobassist_pass_old{{ user_row }}" value="{{ user.password }}"/>
+                                            <input type="password" id="mobassist_pass{{ user_row }}" class="form-control mobassist_pass" data-user_row="{{ user_row }}" name="user[{{ user_row }}][password]" value="{{ user.password }}" placeholder="{{ entry_pass }}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="mobassist_qr{{ user_row }}"><span data-toggle="tooltip" title="{{ help_qr }}">{{ entry_qr }}</span></label>
+                                        <div class="col-sm-10">
+                                            <div style="position: relative; width: 240px">
+                                                <div id="mobassist_qr_code{{ user_row }}" class="qr-code" style="display: none;">{{ user.qr_code }}</div>
+                                                <div id="mobassist_qr_code_changed{{ user_row }}" style="display: none; z-index: 1000; text-align: center; position: absolute; top: 0; left: 0; height: 100%;">
+                                                    <div style="position: relative; width: 100%; height: 100%;">
+                                                        <div style="background: #fff; opacity: 0.9; position: absolute; height: 100%; width: 100%">&nbsp;</div>
+                                                        <div style="font-size: 16px; color: #DF0101; width: 100%; text-align: center; padding-top: 45px; position: absolute; font-weight: bold;">{{ error_login_details_changed }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div>
+                                            {% if url %}
+                                                <a id="qr_code_url{{ user.user_id}}" href="{{ url }}?route=extension/module/mobileassistantconnector&call_function=get_qr_code&qr_hash={{ user.qr_code_hash }}" target="_blank">{{ url }}?route=extension/module/mobileassistantconnector&call_function=get_qr_code&qr_hash={{ user.qr_code_hash }}</a>
+                                            </div>
+                                            <br>
+                                            <a data-user_id="{{ user.user_id }}" data-toggle="tooltip" title="" class="btn btn-default change_url" data-original-title="{{ mac_regenerate_hash_url }}"><i class="fa fa-refresh"></i> {{ mac_regenerate_hash_url }} </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="entry_disable_mis_ord_notif{{ user_row }}">{{ entry_disable_mis_ord_notif }}</label>
+                                        <div class="col-sm-10">
+                                            <input type="checkbox" id="mobassist_disable_mis_ord_notif{{ user_row }}" class="form-control" name="user[{{ user_row }}][mobassist_disable_mis_ord_notif]" value="1" {{ user.mobassist_disable_mis_ord_notif == 1 ? 'checked="true"' : "" }}/>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">{{ mac_permissions }}</label>
+                                        <div class="col-sm-10 perms_group" id="user_permissions{{ user_row }}">
+                                            <div class="perms_group">{{ mac_push_notifications }}<br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][push_new_order]" class="perms" value="1" {{ user.allowed_actions.push_new_order ? 'checked="true"' : ""}}/>{{ mac_new_order_created }}</label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][push_order_status_changed]" class="perms" value="1" {{ user.allowed_actions.push_order_status_changed ? 'checked="true"' : "" }}  />{{ mac_order_status_changed }}</label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][push_new_customer]" class="perms" value="1" {{ user.allowed_actions.push_new_customer ? 'checked="true"' : ""}}  />{{ mac_new_customer_created }}</label><br/>
+                                            </div>
+                                            <br/>
+                                            <div class="perms_group">{{ mac_store_statistics }}<br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][store_statistics]" class="perms" value="1" {{ user.allowed_actions.store_statistics ? 'checked="true"' : ""}}  > {{ mac_view_store_statistics }} </label><br/>
+                                            </div>
+                                            <br/>
+                                            <div class="perms_group">{{ mac_orders }}<br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][order_list]" data-user_row="{{ user_row }}" class="perms perm_order_list" value="1" {{ user.allowed_actions.order_list ? 'checked="true"' : ""}}  > {{ mac_view_order_list }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][order_details]" class="perms perm_order_list{{ user_row }}_child" value="1" {{ user.allowed_actions.order_details ? 'checked="true"' : ""}}  > {{ mac_view_order_details }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][order_status_updating]" class="perms perm_order_list{{ user_row }}_child" value="1" {{ user.allowed_actions.order_status_updating ? 'checked="true"' : "" }} > {{ mac_change_order_status }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][order_details_products_list_pickup]" class="perms perm_order_list{{ user_row }}_child" value="1" {{ user.allowed_actions.order_details_products_list_pickup ? 'checked="true"' : "" }} > {{ mac_order_picking }} </label><br/>
+                                            </div>
+                                            <br/>
+                                            <div class="perms_group">{{ mac_customers }}<br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][customer_list]" data-user_row="{{ user_row }}" class="perms perm_customer_list" value="1" {{ user.allowed_actions.customer_list ? 'checked="true"' : "" }} > {{ mac_view_customer_list }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][customer_details]" class="perms perm_customer_list{{ user_row }}_child" value="1" {{ user.allowed_actions.customer_details ? 'checked="true"' : "" }} > {{ mac_view_customer_details }} </label><br/>
+                                            </div>
+                                            <br/>
+                                            <div class="perms_group">{{ mac_products }}<br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][product_list]" data-user_row="{{ user_row }}" class="perms perm_product_list" value="1" {{ user.allowed_actions.product_list ? 'checked="true"' : "" }} > {{ mac_view_product_list }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][product_details]" class="perms perm_product_list{{ user_row }}_child" value="1" {{ user.allowed_actions.product_details ? 'checked="true"' : "" }} > {{ mac_view_product_details }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][product_edit]" class="perms perm_product_list{{ user_row }}_child" value="1" {{ user.allowed_actions.product_edit ? 'checked="true"' : "" }} > {{ mac_view_product_edit }} </label><br/>
+                                                <label class="perms_label"><input type="checkbox" name="user[{{ user_row }}][allowed_actions][product_add]" class="perms perm_product_list{{ user_row }}_child" value="1" {{ user.allowed_actions.product_add ? 'checked="true"' : "" }} > {{ mac_view_product_add }} </label><br/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="table_push_devices"><span data-toggle="tooltip" title="{{ push_messages_settings_help }}">{{ push_messages_settings }}</label>
+                                        <div class="col-sm-10" id="table_push_devices" style="margin-top: 15px">
+
+                                            {% set push_devices = user.devices  %}
+
+                                            <table id="mobassistantconnector_devices_table" class="table table-bordered table-hover" style="font-size: 12px;">
+                                                <thead>
+                                                <tr>
+                                                    <td>{{ device_name }}</td>
+                                                    <td>{{ account_email }}</td>
+                                                    <td>{{ last_activity }}</td>
+                                                    <td class="text-right">{{ app_connection_id }}</td>
+                                                    <td>{{ store }}</td>
+                                                    <td class="text-center">{{ new_order }}</td>
+                                                    <td class="text-center">{{ new_customer }}</td>
+                                                    <td>{{ order_statuses }}</td>
+                                                    <td>{{ currency }}</td>
+                                                    <td class="text-center">{{ status }}</td>
+                                                    <td class="text-center">{{ delete }}</td>
+                                                </tr>
+                                                </thead>
+
+                                                <tbody class="table_body">
+                                                {% if push_devices|length %}
+                                                {% for device in push_devices %}
+                                                <tr >
+                                                    {% set rowspan = "" %}
+                                                    {% set push_settings = device.push_settings %}
+                                                    {% set rows = push_settings|length %}
+                                                    {% if rows > 1 %}
+                                                    {% set rowspan = 'rowspan="'~rows~'"' %}
+                                                    {% endif %}
+                                                    {% if rows > 1 %}
+                                                        {% set rowspan = 'rowspan="'~rows~'"' %}
+                                                    {% endif %}
+                                                    {% if device.device_name == "Unknown" %}
+                                                    <td class="text-center" colspan="3" {{ rowspan }}>{{ unknown }}</td>
+                                                    {% else %}
+                                                    <td{{ rowspan }}>{{ device.device_name }}</td>
+                                                    <td{{ rowspan }}>{{ device.account_email }}</td>
+                                                    <td{{ rowspan }}>{{ device.last_activity }}</td>
+                                                    {% endif %}
+
+                                                    {% set i = 0 %}
+                                                    {% for push_setting in push_settings %}
+                                                    {% set i = i + 1 %}
+                                                    {% if i > 1 %} <tr>{% endif %}
+                                                    <td class="text-right">{{ push_setting.app_connection_id }}</td>
+                                                    <td>{{ push_setting.store_id_name }}</td>
+                                                    <td class="text-center">
+                                                        {% if push_setting.push_new_order == 1 %}
+                                                        <img src="view/image/mobassistconn_yes.png">
+                                                        {% else %}
+                                                        <img src="view/image/mobassistconn_no.png">
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if push_setting.push_new_customer == 1 %}
+                                                        <img src="view/image/mobassistconn_yes.png">
+                                                        {% else %}
+                                                        <img src="view/image/mobassistconn_no.png">
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ push_setting.push_order_statuses_names }}</td>
+                                                    <td>{{ push_setting.push_currency_name }}</td>
+                                                    <td class="text-center">
+                                                        {% if push_setting.status == 1 %}
+                                                        <a href="{{ action }}&disable_setting_id={{ push_setting.setting_id }}&user_id={{ user.user_id }}" data-toggle="tooltip" title="" class="btn btn-success" data-original-title="{{ disable }}"><i class="fa fa-check"></i></a>
+                                                        {% else %}
+                                                            <a href="{{ action }}&enable_setting_id={{ push_setting.setting_id }}&user_id={{ user.user_id }}" data-toggle="tooltip" title="" class="btn btn-warning" data-original-title="{{ enable }}"><i class="fa fa-remove"></i></a>
+                                                            </td>
+                                                        {% endif %}
+                                                            <td class="text-center">
+                                                                <a href="{{ action }}&delete_setting_id={{ push_setting.setting_id }}&user_id={{ user.user_id }}" onclick="return confirm('{{ are_you_sure }}');" data-toggle="tooltip" title="" class="btn btn-danger" data-original-title="{{ delete }}"><i class="fa fa-trash-o"></i></a>
+                                                            </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                            {% endfor %}
+                                                            {% else %}
+                                                            <tr><td class="text-center" colspan="12">{{ no_data }}</td></tr>
+                                                            {% endif %}
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {% set user_row = user_row + 1 %}
+                                {% endfor %}
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- ========================================================================================================= -->
+<!-- ========================================================================================================= -->
+<!-- ========================================================================================================= -->
+<!-- ========================================================================================================= -->
+
+<script type="text/javascript"><!--
+    $(document).ready(function() {
+        $('.qr-code').each(function(i, obj) {
+            var qrdata = $(obj).html();
+            $(obj).html(" ");
+            var qrcode = new QRCode(obj, {
+                width : 240,
+                height : 240
+            });
+            qrcode.makeCode(qrdata);
+            $(obj).show();
+        });
+
+        setTimeout(
+            function() {
+                $('.success').hide('fast');
+                $('.alert-success').hide('fast');
+            },
+            3000
+        );
+
+        $('#button_save_continue').on('click', function () {
+            $('#save_continue').val('1');
+            $('#form_mobassist').submit();
+        });
+
+        $('#btn_enable_selected').on('click', function () {
+            if($( "#mobassistantconnector_devices_table tbody input[type=checkbox]:checked").length <= 0) {
+                alert("<?php echo $please_select_push_settings; ?>");
+                return false;
+            }
+            $('#save_continue').val('1');
+            $('#bulk_actions').val('1');
+            $('#form_mobassist').submit();
+            return false;
+        });
+
+        $('#btn_disable_selected').on('click', function () {
+            if($( "#mobassistantconnector_devices_table tbody input[type=checkbox]:checked").length <= 0) {
+                alert("<?php echo $please_select_push_settings; ?>");
+                return false;
+            }
+            $('#save_continue').val('1');
+            $('#bulk_actions').val('2');
+            $('#form_mobassist').submit();
+            return false;
+        });
+
+        $('#btn_delete_selected').on('click', function () {
+            if($( "#mobassistantconnector_devices_table tbody input[type=checkbox]:checked").length <= 0) {
+                alert("<?php echo $please_select_push_settings; ?>");
+                return false;
+            }
+            if (confirm('Are you sure?')) {
+                $('#save_continue').val('1');
+                $('#bulk_actions').val('3');
+                $('#form_mobassist').submit();
+            }
+            return false;
+        });
+
+        $('#button_save_not_continue').on('click', function () {
+            $('#save_continue').val('0');
+            $('#form_mobassist').submit();
+        });
+
+        var onCredentChange = function(user_row) {
+            if (user_row <= 0 || user_row == undefined) {
+                return;
+            }
+
+            var old_login = $("#mobassist_login_old" + user_row).val();
+            var old_pass = $("#mobassist_pass_old" + user_row).val();
+            var mobassist_login = $("#mobassist_login" + user_row);
+            var mobassist_pass = $("#mobassist_pass" + user_row);
+
+            var mobassist_qr_code_changed = $('#mobassist_qr_code_changed' + user_row);
+
+            if (old_login != $(mobassist_login).val() || old_pass != $(mobassist_pass).val()) {
+                var qr = $("#mobassist_qr_code" + user_row);
+
+                if($(qr).width() > 0 && $(qr).attr('src') != '') {
+                    $(mobassist_qr_code_changed).width($(qr).width()).show('fast');
+                } else {
+                    $(mobassist_qr_code_changed).hide('fast');
+                }
+            } else {
+                $(mobassist_qr_code_changed).hide('fast');
+            }
+        };
+
+        $(".mobassist_login, .mobassist_pass").on('keyup', function () {
+            var user_row = $(this).data("user_row");
+            onCredentChange(user_row);
+        });
+
+        var store_url_qr = "{{ url }}?route=extension/module/mobileassistantconnector&call_function=get_qr_code&qr_hash=";
+
+        $(".change_url").on('click', function () {
+            var user_id = $(this).data("user_id");
+
+            $.ajax({
+                url: "index.php?route=extension/module/mobileassistantconnector&call_function=generate_qr_code_hash&user_token={{ user_token }}&user_id="+user_id,
+                dataType: 'json',
+                success:function(res) {
+                    var element = $("#qr_code_url" + user_id);
+                    element.attr("href", store_url_qr + res.qr_code_hash);
+                    element.text(store_url_qr + res.qr_code_hash);
+                }
+            });
+        });
+
+        var disableChildCheckbox = function(el, el_class) {
+            var user_row = $(el).data("user_row");
+
+            if (!el.checked) {
+                $('.' + el_class + user_row + '_child').prop('checked', false);
+            }
+
+            $('.' + el_class + user_row + '_child').prop('disabled', !el.checked);
+        };
+
+        $(document).on('change', '.perm_order_list', function () {
+            disableChildCheckbox(this, 'perm_order_list');
+        });
+
+        $(document).on('change', '.perm_customer_list', function () {
+            disableChildCheckbox(this, 'perm_customer_list');
+        });
+
+        $(document).on('change', '.perm_product_list', function () {
+            disableChildCheckbox(this, 'perm_product_list');
+        });
+
+        var qrcode = new QRCode(document.getElementById('mobassist_app_url_qr'), {
+            width : 130,
+            height : 130
+        });
+        qrcode.makeCode('https://goo.gl/HyMsF1');
+
+        {% if is_ver20 %}
+            $('#users a[href="#tab-user{{ active_user_row }}"]').tab('show');
+        {% else %}
+            $('.col-sm-2 a:not(.vtabs_links)').tabs();
+            $('#user-{{ active_user_row }}').trigger('click');
+        {% endif %}
+    });
+
+    var user_row = {{ user_row }};
+
+    function addUser() {
+        var html = '';
+
+        html += '<div class="tab-pane" id="tab-user' + user_row + '">';
+        html += '  <input type="hidden" name="user[' + user_row + '][user_id]" value="" />';
+
+        html += '  <div class="form-group">';
+        html += '    <label class="col-sm-2 control-label" for="input-status' + user_row + '">{{ entry_status }}</label>';
+        html += '    <div class="col-sm-10">';
+        html += '      <select name="user[' + user_row + '][user_status]" id="input-status' + user_row + '" class="form-control">';
+        html += '        <option value="1" selected="selected">{{ text_enabled }}</option>';
+        html += '        <option value="0">{{ text_disabled }}</option>';
+        html += '      </select>';
+        html += '    </div>';
+        html += '  </div>';
+
+        html += '  <div class="form-group required">';
+        html += '    <label class="col-sm-2 control-label" for="mobassist_login' + user_row + '"><span data-toggle="tooltip" title="{{ help_login }}">{{ entry_login }}</span></label>';
+        html += '    <div class="col-sm-10"><input type="text" id="mobassist_login' + user_row + '" name="user[' + user_row + '][username]" value="1" placeholder="{{ entry_login }}" required class="form-control" /></div>';
+        html += '  </div>';
+
+        html += '  <div class="form-group">';
+        html += '    <label class="col-sm-2 control-label" for="mobassist_pass' + user_row + '"><span data-toggle="tooltip" title="{{ help_pass }}">{{ entry_pass }}</span></label>';
+
+        html += '    <div class="col-sm-10"><input type="password" id="mobassist_pass' + user_row + '" name="user[' + user_row + '][password]" value="{{ hash_of_one }}" placeholder="{{ entry_pass }}" class="form-control" /></div>';
+        html += '  </div>';
+
+        html += '  <div class="form-group">';
+        html += '    <label class="col-sm-2 control-label" for="entry_disable_mis_ord_notif' + user_row + '">{{ entry_disable_mis_ord_notif }}</label>';
+        html += '    <div class="col-sm-10"><input type="checkbox" id="mobassist_disable_mis_ord_notif' + user_row + '" class="form-control" name="user[' + user_row + '][mobassist_disable_mis_ord_notif]" value="1" /></div>';
+        html += '  </div>';
+
+        html += '  <div class="form-group">';
+        html += '    <label class="col-sm-2 control-label" for="permissions{{ user_row }}">Permissions</label>';
+        html += '    <div class="col-sm-10 perms_group" id="user_permissions">';
+        html += '      <div class="perms_group">{{ mac_push_notifications }}<br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][push_new_order]" class="perms" value="1" checked/> {{ mac_new_order_created }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][push_order_status_changed]" class="perms" value="1" checked/> {{ mac_order_status_changed }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][push_new_customer]" class="perms" value="1" checked/> {{ mac_new_customer_created }} </label><br/>';
+        html += '      </div>';
+        html += '      <br/>';
+        html += '      <div class="perms_group">Store statistics<br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][store_statistics]" class="perms" value="1" checked> {{ mac_view_store_statistics }}</label><br/>';
+        html += '      </div>';
+        html += '      <br/>';
+        html += '      <div class="perms_group">{{ mac_orders }}<br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][order_list]" data-user_row="' + user_row + '" class="perms perm_order_list" value="1" checked> {{ mac_view_order_list }}</label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][order_details]" class="perms perm_order_list' + user_row + '_child" value="1" checked> {{ mac_view_order_details }}</label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][order_status_updating]" class="perms perm_order_list' + user_row + '_child" value="1" checked> {{ mac_change_order_status }}</label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][order_details_products_list_pickup]" class="perms perm_order_list' + user_row + '_child" value="1" checked> {{ mac_order_picking }} </label><br/>';
+        html += '      </div>';
+        html += '      <br/>';
+        html += '      <div class="perms_group">{{ mac_customers }}<br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][customer_list]" data-user_row="' + user_row + '" class="perms perm_customer_list" value="1" checked> {{ mac_view_customer_list }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][customer_details]" class="perms perm_customer_list' + user_row + '_child" value="1" checked> {{ mac_view_customer_details }} </label><br/>';
+        html += '      </div>';
+        html += '      <br/>';
+        html += '      <div class="perms_group">{{ mac_products }}<br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][product_list]" data-user_row="' + user_row + '" class="perms perm_product_list" value="1" checked> {{ mac_view_product_list }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][product_details]" class="perms perm_product_list' + user_row + '_child" value="1" checked> {{ mac_view_product_details }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][product_edit]" class="perms perm_product_edit' + user_row + '_child" value="1" checked> {{ mac_view_product_edit }} </label><br/>';
+        html += '        <label class="perms_label"><input type="checkbox" name="user[' + user_row + '][allowed_actions][product_add]" class="perms perm_product_add' + user_row + '_child" value="1" checked> {{ mac_view_product_add }} </label><br/>';
+        html += '      </div>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '</div>';
+
+        $('#form_mobassist .tab-content').append(html);
+
+        $('#user-add').before('<li><a href="#tab-user' + user_row + '" data-toggle="tab"><i class="fa fa-minus-circle" onclick="$(\'#users a:first\').tab(\'show\'); $(\'a[href=\\\'#tab-user' + user_row + '\\\']\').parent().remove(); $(\'#tab-user' + user_row + '\').remove();"></i> {{ mac_user }}  1</a></li>');
+
+        $('#users a[href="#tab-user' + user_row + '"]').tab('show');
+
+        user_row++;
+    }
+
+    //--></script>
+
+{{ footer }}

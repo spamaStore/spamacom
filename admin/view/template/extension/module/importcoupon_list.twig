@@ -1,0 +1,381 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+       <div class="pull-right">
+        <a href="{{ coupon_list }}" data-toggle="tooltip" title="Check Current Coupon List" class="btn btn-warning"><i class="fa fa-reply" aria-hidden="true"></i> Back</a>
+        <button type="button" class="btn btn-default howitworks" data-toggle="modal" data-target="#howitworks"><i class="fa fa-question-circle" aria-hidden="true"></i> {{ text_howitworks }}</button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div id="content">
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+             <div class="container-fluid">
+               <div class="pull-right">
+                <button type="button" class="btn btn-primary btn-lg save" >{{ button_save }}</button>
+             </div>
+              <h4 class="panel-title">{{ step1 }}</h4>
+            </div>
+          </div>
+          <div class="panel-collapse collapse" id="collapse-checkout-option">
+            <div class="panel-body">
+
+          <form class="form-horizontal">
+          <div class="form-group">
+           <label class="col-sm-2 control-label" for="input-code"><span data-toggle="tooltip" title="{{ help_code }}">{{ entry_code }}</span></label>
+          <div class="col-sm-10">
+           <input type="text" placeholder="Enter Code" name="module_importcoupon_prefix" value="{{ module_importcoupon_prefix }}" maxlength="6" class="form-control"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="input-code"><span data-toggle="tooltip" title="{{ help_number }}">{{ entry_number }}</span></label>
+          <div class="col-sm-10">
+            <input type="text"  placeholder="Number" name="module_importcoupon_number" value="{{ module_importcoupon_number }}" class="form-control" >
+          </div>
+        </div>
+        <div class="form-group">
+           <label class="col-sm-2 control-label" for="input-type"><span data-toggle="tooltip" title="{{ help_type }}">{{ entry_type }}</span></label>
+            <div class="col-sm-10">
+            <select name="module_importcoupon_ctype" class="form-control">
+                  {% if module_importcoupon_ctype == 'P' %}
+                  <option value="P" selected="selected">{{ text_percent }}</option>
+                  {% else %}
+                  <option value="P">{{ text_percent }}</option>
+                  {% endif %}
+                  {% if module_importcoupon_ctype == 'F' %}
+                  <option value="F" selected="selected">{{ text_amount }}</option>
+                  {% else %}
+                  <option value="F">{{ text_amount }}</option>
+                  {% endif %}
+                </select>
+          </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-discount">{{ entry_discount }}</label>
+            <div class="col-sm-10">
+            <input type="text"  placeholder="Enter discount amount" name="module_importcoupon_discount" value="{{ module_importcoupon_discount }}" class="form-control"/>
+          </div>
+        </div>
+        <div class="form-group">
+           <label class="col-sm-2 control-label" for="input-type"><span data-toggle="tooltip" title="{{ help_total }}">{{ entry_total }}</span></label>
+            <div class="col-sm-10">
+             <input type="text"  placeholder="Enter total amount" name="module_importcoupon_total" value="{{ module_importcoupon_total }}"  class="form-control"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_free_shipping }}">{{ entry_shipping }} </span></label>
+          <div class="col-sm-10">
+            <label class="radio-inline">
+              {% if module_importcoupon_freeshipping %}
+              <input type="radio" name="module_importcoupon_freeshipping" value="1" checked="checked" />
+              {{ text_yes }}
+              {% else %}
+              <input type="radio" name="module_importcoupon_freeshipping" value="1" />
+              {{ text_yes }}
+              {% endif %}
+            </label>
+            <label class="radio-inline">
+              {% if not module_importcoupon_freeshipping %}
+              <input type="radio" name="module_importcoupon_freeshipping" value="0" checked="checked" />
+              {{ text_no }}
+              {% else %}
+              <input type="radio" name="module_importcoupon_freeshipping" value="0" />
+              {{ text_no }}
+              {% endif %}
+            </label>
+          </div>
+        </div>
+
+         <div class="form-group">
+         <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_logged }}">{{ entry_logged }}</span></label>
+          <div class="col-sm-10">
+            <label class="radio-inline">
+              {% if module_importcoupon_logged %}
+              <input type="radio" name="module_importcoupon_logged" value="1" checked="checked" />
+              {{ text_yes }}
+              {% else %}
+              <input type="radio" name="module_importcoupon_logged" value="1" />
+              {{ text_yes }}
+              {% endif %}
+            </label>
+            <label class="radio-inline">
+              {% if not module_importcoupon_logged %}
+              <input type="radio" name="module_importcoupon_logged" value="0" checked="checked" />
+              {{ text_no }}
+              {% else %}
+              <input type="radio" name="module_importcoupon_logged" value="0" />
+              {{ text_no }}
+              {% endif %}
+            </label>
+          </div>
+        </div>
+        <div class="form-group customergroup">
+          <label class="col-sm-2 control-label">{{ entry_customergroup }}</label>
+          <div class="col-sm-10">
+            <div class="well well-sm" style="height: 150px; overflow: auto;">
+              {% for customergroup in customergroups %}
+              <div class="checkbox">
+                <label>
+                  {% if customergroup.customer_group_id in module_importcoupon_customergroup  %}
+                  <input type="checkbox" name="module_importcoupon_customergroup" value="{{ customergroup.customer_group_id }}" checked="checked" />
+                  {{ customergroup.name }}
+                  {% else %}
+                  <input type="checkbox" name="module_importcoupon_customergroup" value="{{ customergroup.customer_group_id }}" />
+                  {{ customergroup.name }}
+                  {% endif %}
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-product"><span data-toggle="tooltip" title="{{ help_product }}">{{ entry_product }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="product" value="" placeholder="{{ entry_product }}" id="input-product" class="form-control" />
+                  <div id="coupon-product" class="well well-sm" style="height: 150px; overflow: auto;">
+                    {% for coupon_product in coupon_product %}
+                    <div  class="{{ coupon_product.product_id }}" id="coupon-product{{ coupon_product.product_id }}"><i class="fa fa-minus-circle"></i> {{ coupon_product.name }}
+                      <input type="hidden" name="module_importcoupon_product[]" value="{{ coupon_product.product_id }}" />
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+          </div>
+          <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-category"><span data-toggle="tooltip" title="{{ help_category }}">{{ entry_category }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="category" value="" placeholder="{{ entry_category }}" id="input-category" class="form-control" />
+                  <div id="coupon-category" class="well well-sm" style="height: 150px; overflow: auto;">
+                    {% for coupon_category in coupon_category %}
+                    <div class="{{ coupon_category.category_id }}" id="coupon-category{{ coupon_category.category_id }}"><i class="fa fa-minus-circle"></i> {{ coupon_category.name }}
+                      <input type="hidden" name="module_importcoupon_category[]" value="{{ coupon_category.category_id }}" />
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+          </div>
+          <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-date-start">{{ entry_date_start }}</label>
+                <div class="col-sm-3">
+                  <div class="input-group date">
+                    <input type="text" name="module_importcoupon_sdate" value="{{ module_importcoupon_sdate }}" placeholder="{{ entry_date_start }}" data-date-format="YYYY-MM-DD"  id="input-date-start" class="form-control" />
+                    <span class="input-group-btn">
+                    <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                    </span></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-date-end">{{ entry_date_end }}</label>
+                <div class="col-sm-3">
+                  <div class="input-group date">
+                    <input type="text" name="module_importcoupon_edate" value="{{ module_importcoupon_edate }}" placeholder="{{ entry_date_end }}" data-date-format="YYYY-MM-DD"  id="input-date-end" class="form-control" />
+                    <span class="input-group-btn">
+                    <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                    </span></div>
+                </div>
+              </div>
+             <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-uses-total"><span data-toggle="tooltip" title="{{ help_uses_total }}">{{ entry_uses_total }}</span></label>
+                <div class="col-sm-10">
+                 <input type="text" colspan="12" placeholder="Enter number" name="module_importcoupon_usetotal" value="{{ module_importcoupon_usetotal }}" class="form-control" />
+              </div>
+            </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="input-uses-customer"><span data-toggle="tooltip" title="{{ help_uses_customer }}">{{ entry_uses_customer }}</span></label>
+            <div class="col-sm-10">
+             <input type="text" placeholder="Enter number" name="module_importcoupon_cuse" value="{{ module_importcoupon_cuse }}"  class="form-control"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="input-uses-customer"><span data-toggle="tooltip" title="The above setting will be used for coupon generation">{{ button_save }}</span></label>
+            <div class="col-sm-10">
+            <button type="button" class="btn btn-primary btn-lg save" >{{ button_save }}</button>
+          </div>
+        </div>
+        
+</form>
+
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">{{ step2 }}</h4>
+          </div>
+          <div class="panel-collapse collapse" id="collapse-import-coupon">
+            
+            <div class="panel-body">
+              <div class="alert alert-info settingsuccess">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+              </div>
+              <a onclick="location = '{{ upload_action }}'" data-toggle="tooltip" title="Import My Coupons" class="btn btn-primary">{{ button_import_automatic }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+$('.deleteall').click(function(){
+  if(confirm('Are you sure You want to delete all coupons?')){
+    return true;
+  } else {
+    return false;
+  }
+});
+</script>
+<script type="text/javascript">
+$('.save').on('click',function(){
+  $('.errorn,.errorp').removeClass('warning').html('');
+  var prefix = $('input[name = "module_importcoupon_prefix"]').val();
+  var number = $('input[name = "module_importcoupon_number"]').val();
+  var ctype = $('select[name = "module_importcoupon_ctype"]').val();
+  var discount = $('input[name = "module_importcoupon_discount"]').val();
+  var freeshipping = $('input[name = "module_importcoupon_freeshipping"]:checked').val();
+  var logged = $('input[name = "module_importcoupon_logged"]:checked').val();
+  var total = $('input[name = "module_importcoupon_total"]').val();
+  var sdate = $('input[name = "module_importcoupon_sdate"]').val();
+  var edate = $('input[name = "module_importcoupon_edate"]').val();
+  var ccat = [];
+  var temp = $('#coupon-category').children().length;
+  for (var i = 1; i <= temp; i++) {
+    ccat[i-1] = $('#coupon-category div:nth-child('+i+')').attr("class");
+  };
+  var pid = [];
+  var temp = $('#coupon-product').children().length;
+  for (var i = 1; i <= temp; i++) {
+    pid[i-1] = $('#coupon-product div:nth-child('+i+')').attr("class");
+  };
+
+var customergroup = $('input[name = "module_importcoupon_customergroup"]:checked').map(function() {
+    return this.value;
+}).get();
+   
+  var usetotal = $('input[name = "module_importcoupon_usetotal"]').val();
+  var cuse = $('input[name = "module_importcoupon_cuse"]').val();
+
+ 
+  $.ajax({
+    type: 'post',
+    data: 'csv=0'+'&module_importcoupon_prefix=' + prefix + '&module_importcoupon_number=' + number + '&module_importcoupon_ctype=' + ctype + '&module_importcoupon_discount=' + discount + '&module_importcoupon_freeshipping=' + freeshipping + '&module_importcoupon_logged=' + logged + '&module_importcoupon_customergroup=' + customergroup + '&module_importcoupon_total=' + total + '&module_importcoupon_sdate=' + sdate + '&module_importcoupon_edate=' + edate + '&module_importcoupon_usetotal=' + usetotal + '&module_importcoupon_cuse=' + cuse + '&module_importcoupon_category=' + ccat  + '&module_importcoupon_product=' + pid,
+  url: 'index.php?route=extension/module/importcoupon/setting&user_token={{ user_token }}',
+  dataType: 'json',
+  success: function(data) {
+      if(data['success']) {
+        $(".settingsuccess").html(data['success']);
+      }
+         $('#collapse-import-coupon').parent().find('.panel-heading .panel-title').html('<a href="#collapse-import-coupon" data-toggle="collapse" data-parent="#accordion" class="accordion-toggle">{{ step2 }} </a>');
+      
+      $('a[href=\'#collapse-import-coupon\']').trigger('click');
+  }
+  });
+  
+});
+
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+      $('#collapse-checkout-option').parent().find('.panel-heading .panel-title').html('<a href="#collapse-checkout-option" data-toggle="collapse" data-parent="#accordion" class="accordion-toggle">Step 1: Fill form below to import coupons</a>');
+      
+      $('a[href=\'#collapse-checkout-option\']').trigger('click');
+       
+}); 
+</script>
+  <script type="text/javascript"><!--
+$('input[name=\'product\']').autocomplete({
+  'source': function(request, response) {
+    $.ajax({
+      url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+      dataType: 'json',     
+      success: function(json) {
+        response($.map(json, function(item) {
+          return {
+            label: item.name,
+            value: item.product_id
+          }
+        }));
+      }
+    });
+  },
+  'select': function(item) {
+    $('input[name=\'product\']').val('');
+    console.log(item);
+    $('#coupon-product' + item.value).remove();
+    
+    $('#coupon-product').append('<div  class="'+item.value+'" id="coupon-product' + item.value + '"><i class="fa fa-minus-circle"></i> ' + item.label + '<input type="hidden" name="module_importcoupon_product[]" value="' + item.value + '" /></div>'); 
+  }
+});
+
+$('#coupon-product').delegate('.fa-minus-circle', 'click', function() {
+  $(this).parent().remove();
+});
+
+// Category
+$('input[name=\'category\']').autocomplete({
+  'source': function(request, response) {
+    $.ajax({
+      url: 'index.php?route=catalog/category/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+      dataType: 'json',
+      success: function(json) {
+        response($.map(json, function(item) {
+          return {
+            label: item.name,
+            value: item.category_id
+          }
+        }));
+      }
+    });
+  },
+  'select': function(item) {
+    $('input[name=\'category\']').val('');
+    
+    $('#coupon-category' + item.value).remove();
+    
+    $('#coupon-category').append('<div class="'+item.value+'" id="coupon-category' + item.value + '"><i class="fa fa-minus-circle"></i> ' + item.label + '<input type="hidden" name="module_importcoupon_category[]" value="' + item.value + '" /></div>');
+  } 
+});
+
+$('#coupon-category').delegate('.fa-minus-circle', 'click', function() {
+  $(this).parent().remove();
+});
+//--></script>
+  <script type="text/javascript"><!--
+$('.date').datetimepicker({
+  pickTime: false
+});
+//--></script>
+<div id="howitworks" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><i class="fa fa-heartbeat" style="color:#FF0101;font-size:17px;" aria-hidden="true"></i> {{ text_howitworks }}</h4>
+      </div>
+      <div class="modal-body">
+        {{ text_howitworks_content }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

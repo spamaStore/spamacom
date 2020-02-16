@@ -1,0 +1,73 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-google-business-data" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+        <h1>{{ heading_title }}</h1>
+        <ul class="breadcrumb">
+          {% for breadcrumb in breadcrumbs %}
+            <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="container-fluid">
+      {% if error_warning %}
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+      {% endif %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+        </div>
+        <div class="panel-body">
+          <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-google-merchant-center" class="form-horizontal">
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_feed_url }}</label>
+            <div class="col-sm-10">
+                <div class="form-control" style="height: auto;">
+                    <a href="{{ feed_url }}" target="_blank" style="font-weight: bold;color: black;font-size: 15px;text-align: center;">{{ feed_url }}</a>
+                </div>
+            </div>
+          </div>
+          <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ help_feed_url }}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+          </div>
+          <style>
+          .switching:nth-of-type(even) {
+              background-color: #e1e1e1;
+              padding: 5px;
+          }
+          .switching:nth-of-type(odd) {
+              background-color: #ebebeb;
+              padding: 5px;
+          }
+          </style>
+          {{ sm_status }}
+          {{ sm_save_to_file }}
+          {{ sm_base_taxonomy }}
+          {{ sm_use_meta }}
+          {{ sm_clear_html }}
+          {{ sm_language }}
+          {{ sm_pid1 }}
+          {{ sm_option_ids }}
+          {{ sm_size_options }}
+          {{ sm_color_options }}
+          {{ sm_material_options }}
+          {{ sm_pattern_options }}
+          {{ sm_currency }}
+          {{ sm_use_tax }}
+          {{ sm_image_cache }}
+          {{ sm_disabled_products }}
+          {{ sm_sold_out_products }}
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ footer }}

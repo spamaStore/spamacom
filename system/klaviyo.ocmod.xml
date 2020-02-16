@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Klaviyo</name>
+    <code>Klaviyo</code>
+    <version>3.0</version>
+    <author>ocpedia@gmail.com</author>
+    <link>http://www.ocpedia.com</link>
+
+    <file path="catalog/view/theme/*/template/common/header.twig">
+        <operation>
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[
+            <script type="application/javascript" async src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=NyVh5U"></script>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/common/footer.twig">
+        <operation>
+            <search><![CDATA[</body>]]></search>
+            <add position="before"><![CDATA[
+            <script>
+              var _learnq = _learnq || [];
+                  var avx=123;
+              </script>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/common/footer.php">
+        <operation>
+            <search><![CDATA[if ($this->config->get('config_customer_online')) {]]></search>
+            <add position="before"><![CDATA[
+                    if ($this->config->get('module_klaviyo_status') && $this->cart->hasProducts()) {
+            $this->load->model('module/klaviyo');
+            if ($this->customer->isLogged()) {
+                $this->model_module_klaviyo->saveCustomerCart(
+                  $this->session->getId(),
+                  $this->customer->getId(),
+                  $this->cart->getProducts()
+                );
+            } elseif(isset($this->session->data['order_id'])) {
+                $this->load->model('checkout/order');
+                $order_info =  $this->model_checkout_order->getOrder($this->session->data['order_id']);
+                $guest = array();
+                if($order_info){
+                    $guest['customer_id'] = 0;
+                    $guest['customer_group_id'] = $this->config->get('config_customer_group_id');
+                    $guest['firstname'] = $order_info['firstname'];
+                    $guest['lastname'] = $order_info['lastname'];
+                    $guest['email'] = $order_info['email'];
+                    $guest['telephone'] = $order_info['telephone'];
+                    $guest['fax'] = '';
+                    $this->model_module_klaviyo->saveGuestCart($this->session->getId(),$guest,$this->cart->getProducts());
+                }                
+            }
+            
+        }
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/product.php">
+        <operation>
+            <search><![CDATA[if ((float)$product_info['special']) {]]></search>
+            <add position="before"><![CDATA[
+            $category = $this->model_catalog_product->getCategories($product_id);
+            if ($category){
+            $category_array = $this->model_catalog_category->getCategory($category[0]['category_id']);
+            $data['category'] = $category_array['name'];
+            }
+            $data['product_price'] = $this->currency->format($this->tax->calculate($product_info['price'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], '', false);
+            if(!$data['manufacturer']){
+                $data['manufacturer'] = 'Spama';
+            }
+            $data['product_url'] = $this->url->link('product/product', 'product_id=' . $this->request->get['product_id']);
+            $data['special_price'] = false;
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$data['special'] = $this->currency->format($this->tax->calculate($product_info['special'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);]]></search>
+            <add position="after"><![CDATA[
+            $data['special_price'] = $this->currency->format($this->tax->calculate($product_info['special'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], '', false);
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/product/product.twig">
+        <operation>
+            <search><![CDATA[{{ footer }}]]></search>
+            <add position="before"><![CDATA[
+<script type="text/javascript">
+   var _learnq = _learnq || [];
+   var item = {
+     "ProductName": "{{ heading_title }}",
+     "ProductID": "{{ product_id }}",
+     "Categories": {{ category }},
+     "ImageURL": "{{ thumb }}",
+     "URL": "{{ product_url }}",
+     "Brand": "{{ manufacturer }}",
+     "Price": {{ product_price }},
+     "CompareAtPrice": {{ special_price }}
+   };
+ 
+   _learnq.push(["track", "Viewed Product", item]);
+ 
+   _learnq.push(["trackViewedItem", {
+     "Title": item.ProductName,
+     "ItemId": item.ProductID,
+     "Categories": item.Categories,
+     "ImageUrl": item.ImageURL,
+     "Url": item.URL,
+     "Metadata": {
+       "Brand": item.Brand,
+       "Price": item.Price,
+       "CompareAtPrice": item.CompareAtPrice
+     }
+   }]);
+   _learnq.push(['track', 'Viewed Product', {
+      Title: '{{ heading_title }}',
+      ItemId: {{ product_id }},
+      Categories: '{{ category }}', // The list of categories is an array of strings. 
+      ImageUrl: '{{ thumb }}',
+      Url: '{{ product_url }}',
+      Metadata: {
+        Brand: '{{ manufacturer }}',
+        Price: '{{ product_price }}',
+        CompareAtPrice: '' // If you have a compare at price. You could also include this for a sale or special price.
+      }
+  }]);
+ </script>
+            ]]></add>
+        </operation>
+    </file>
+
+    
+     
+</modification>

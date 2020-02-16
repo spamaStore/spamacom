@@ -1,0 +1,109 @@
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tbody>
+	<tr>
+		<td align="left" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0">
+				<tbody>
+                {% if store.config_logo %}<tr>
+					<td><img alt="" src="{{ store.config_logo }}" /></td>
+					</tr>{% endif %}
+				<tr>
+					<td style="line-height:0.5pt">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+							<tr>
+								<td width="90">{{ text_date_added }}</td>
+								<td>{{ order.date_added }}</td>
+							</tr>
+
+							<tr>
+								<td width="90">{{ text_order_id }}</td>
+								<td>{{ order.order_id }}</td>
+							</tr>
+
+                            {% if order.invoice_no %}
+								<tr>
+									<td width="90">{{ text_invoice_no }}</td>
+									<td>{{ order.invoice_prefix ~ order.invoice_no }}</td>
+								</tr>
+                            {% endif %}
+
+                            {% if order.payment_method %}
+								<tr>
+									<td width="90">{{ text_payment_method }}</td>
+									<td>{{ order.payment_method }}</td>
+								</tr>
+                            {% endif %}
+
+                            {% if order.shipping_method %}
+								<tr>
+									<td width="90">{{ text_shipping_method }}</td>
+									<td>{{ order.shipping_method }}</td>
+								</tr>
+                            {% endif %}
+
+                            {% if order.custom_field %}
+                            {% for custom_field in order.custom_field %}
+								<tr>
+									<td width="90">{{ custom_field.name }}</td>
+									<td>{{ custom_field.value }}</td>
+								</tr>
+                            {% endfor %}
+                            {% endif %}
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</td>
+		<td align="right" valign="top">
+			<b style="font-size: 120%;">{% if order.store_url %}<a href="{{ order.store_url }}" style="text-decoration:none; color:#000000" target="_blank">{{ store.config_name }}</a> {% else %}  {{ store.config_name }}{% endif %}</b>
+
+            {% if store.config_address %}
+				<br />{{ store.config_address }}
+            {% endif %}
+
+            {% if store.config_telephone %}
+				<br />{{ store.config_telephone }}
+            {% endif %}
+
+            {% if store.config_email %}
+				<br /><a href="mailto:{{ store.config_email }}" style="text-decoration:none; color:#000000" target="_blank">{{ store.config_email }}</a>
+            {% endif %}
+		</td>
+	</tr>
+    {% if order.shipping_address  or  order.payment_address %}
+		<tr>
+			<td colspan="2" height="8">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table border="0" cellpadding="5" cellspacing="0" width="100%">
+					<tbody>
+					<tr>
+						<td bgcolor="{{ config.pdf_invoice_color }}" style="color:#ffffff"{% if order.shipping_address %} width="50%"{% endif %}><b>{{ text_payment_address }}</b></td>
+                        {% if order.shipping_address %}
+							<td bgcolor="{{ config.pdf_invoice_color }}" style="color:#ffffff" width="50%"><b>{{ text_shipping_address }}</b></td>
+                        {% endif %}
+					</tr>
+					<tr>
+						<td>
+							<p>{{ order.payment_address }}</p>
+						</td>
+                        {% if order.shipping_address %}
+							<td width="50%">
+								<p>{{ order.shipping_address }}</p>
+							</td>
+                        {% endif %}
+					</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+    {% endif %}
+	</tbody>
+</table>

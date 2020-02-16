@@ -1,0 +1,184 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-ciadvancedoptions" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-success active"><i class="fa fa-check-circle"></i> {{ button_save }}</button></div>
+      <h1><i class="fa fa-cube"></i> {{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-tag"></i> {{ text_edit }}</h3>
+        <div class="pull-right">
+          <label>{{ entry_store }}</label>
+          <select name="store_id" onchange="window.location = 'index.php?route=extension/ciadvancedoptions&user_token={{ user_token }}&store_id='+ this.value;">
+            <option value="0">{{ text_default }}</option>
+            {% for store in stores %}
+            <option value="{{ store.store_id }}" {{ store.store_id == store_id ? 'selected="selected"' : '' }}>{{ store.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-ciadvancedoptions" class="form-horizontal">
+          <div class="tab-pane active" id="tab-setting">
+            <fieldset>
+              <legend>{{ legend_extension }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_extension }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_module_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_status" {{ ciadvancedoptions_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_status" {{ not ciadvancedoptions_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_option_price }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_option_price }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_option_price_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_price_status" {{ ciadvancedoptions_option_price_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_option_price_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_price_status" {{ not ciadvancedoptions_option_price_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_description }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_description }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_option_description_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_description_status" {{ ciadvancedoptions_option_description_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_option_description_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_description_status" {{ not ciadvancedoptions_option_description_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_model }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_model }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_option_model_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_model_status" {{ ciadvancedoptions_option_model_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_option_model_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_model_status" {{ not ciadvancedoptions_option_model_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_sku }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_sku }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_option_sku_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_sku_status" {{ ciadvancedoptions_option_sku_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_option_sku_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_sku_status" {{ not ciadvancedoptions_option_sku_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_image }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_image }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_option_image_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_image_status" {{ ciadvancedoptions_option_image_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_option_image_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_option_image_status" {{ not ciadvancedoptions_option_image_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="ci-fieldset">
+              <legend>{{ legend_customergroup }}</legend>
+              <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ alert_customergroup }}</div>
+              <div class="form-group group-status">
+                <label class="col-sm-2 control-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {{ ciadvancedoptions_customer_group_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_customer_group_status" {{ ciadvancedoptions_customer_group_status ? 'checked="checked"' : '' }} autocomplete="off" value="1" type="radio">{{ text_enabled }}
+                    </label>
+                    <label class="btn btn-default {{ not ciadvancedoptions_customer_group_status ? 'active' : '' }}">
+                      <input name="ciadvancedoptions_customer_group_status" {{ not ciadvancedoptions_customer_group_status ? 'checked="checked"' : '' }} autocomplete="off" value="0" type="radio"> {{ text_disabled }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<style type="text/css">
+.btn-group .active{
+  background : #1872A2;
+  color: #fff;
+  border-color: #1872A2;
+}
+
+.btn-group .btn:hover{
+  background : #1872A2;
+  color: #fff;
+  border-color: #1872A2;
+}
+
+.ci-fieldset {
+  margin-top: 30px;
+}
+</style>
+</div>
+{{ footer }}

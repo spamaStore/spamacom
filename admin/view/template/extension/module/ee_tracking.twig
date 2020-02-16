@@ -1,0 +1,1414 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="hide-screen">
+    <div class="spinner-wrapper"><i class="fa fa-spinner fa-pulse fa-2x" aria-hidden="true"></i></div>
+  </div>
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button onclick="saveSettings($(this))" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-success" data-loading-text="<i class='fa fa-spinner fa-pulse'></i> {{ text_loading }}"><i class="fa fa-floppy-o"></i></button>
+        <button onclick="changeTranslator()" data-toggle="tooltip" title="{{ button_translator }}" class="btn {% if translator is defined and translator %}btn-info{% else %}btn-default{% endif %}"><i class="fa fa-language"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>
+        <i class="fa fa-line-chart"></i> {{ heading_title_main }}
+        <div class="version">{{ module_version }}</div>
+        <div class="developer"><a href="{{ dev_site }}" target="_blank">by {{ author }}</a></div>
+      </h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="message-wrapper">
+      {% if error.warning %}
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error.warning }}
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+      {% endif %}
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-sm-6">
+            <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+          </div>
+          <div class="col-sm-6">
+            <div class="pull-right">
+              {% if translator is defined and translator %}
+                <div id="google_translate_element" style="margin-bottom: -13px;margin-top: -13px;"></div>
+                <script type="text/javascript">
+                  function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.VERTICAL, autoDisplay: false, multilanguagePage: true}, 'google_translate_element');
+                  }
+                </script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+          <input type="hidden" name="translator" id="translator" value="{{ translator }}"/>
+          <input type="hidden" name="module_ee_tracking_module_version" value="{{ module_version }}"/>
+          {% if stores|length > 1 %}
+          <div class="form-group" id="form-group-store_id" {% if (module_ee_tracking_multistore is null or module_ee_tracking_multistore == 0) and store_id == 0 %}style="display: none;"{% endif %}>
+            <label class="col-sm-2 control-label" for="select-store_id">{{ entry_store }}</label>
+            <div class="col-sm-10">
+              <select name="store_id" id="select-store_id" class="form-control">
+                {% for store in stores %}
+                  <option value="{{ store.store_id }}" {% if store.store_id == store_id %}selected="selected"{% endif %}>{{ store.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          {% endif %}
+          <div class="col-xs-3">
+          <ul class="nav nav-tabs tabs-left">
+            <li class="active"><a href="#tab-general" data-toggle="tab"><i class="fa fa-home tab-icon"></i> {{ tab_general }}</a></li>
+            <li><a href="#tab-advanced" data-toggle="tab"><i class="fa fa-expand tab-icon"></i> {{ tab_advanced }}</a></li>
+            <li><a href="#tab-impression" data-toggle="tab"><i class="fa fa-eye tab-icon"></i> {{ tab_impression }}</a></li>
+            <li><a href="#tab-click" data-toggle="tab"><i class="fa fa-hand-pointer-o tab-icon"></i> {{ tab_click }}</a></li>
+            <li><a href="#tab-detail" data-toggle="tab"><i class="fa fa-search-plus tab-icon"></i> {{ tab_detail }}</a></li>
+            <li><a href="#tab-cart" data-toggle="tab"><i class="fa fa-shopping-cart tab-icon"></i> {{ tab_cart }}</a></li>
+            <li><a href="#tab-checkout" data-toggle="tab"><i class="fa fa-truck tab-icon"></i> {{ tab_checkout }}</a></li>
+            <li><a href="#tab-transaction" data-toggle="tab"><i class="fa fa-money tab-icon"></i> {{ tab_transaction }}</a></li>
+            <li><a href="#tab-refund" data-toggle="tab"><i class="fa fa-reply tab-icon"></i> {{ tab_refund }}</a></li>
+            <li><a href="#tab-promotion" data-toggle="tab"><i class="fa fa-bullhorn tab-icon"></i> {{ tab_promotion }}</a></li>
+            <li><a href="#tab-custom-dimension" data-toggle="tab"><i class="fa fa-arrows-alt tab-icon"></i> {{ tab_custom_dimension }}</a></li>
+            <li><a href="#tab-filter" data-toggle="tab"><i class="fa fa-filter tab-icon"></i> {{ tab_filter }}</a></li>
+            <li><a href="#tab-log" data-toggle="tab"><i class="fa fa-bars tab-icon"></i> {{ tab_log }}</a></li>
+            {% if store_id == 0 %}
+            <li><a href="#tab-help" data-toggle="tab" onclick="loadIframe('iframe-support-request');"><i class="fa fa-life-ring tab-icon"></i> {{ tab_help }}</a></li>
+            {% endif %}
+          </ul>
+          </div>
+          <div class="col-xs-9">
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <fieldset>
+                <legend>{{ legend_bulk }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">
+                    <span data-toggle="tooltip" title="{{ help_all_status }}">{{ entry_status }}</span>
+                    <p>({{ text_configuring_only }})</p>
+                  </label>
+                  <div class="col-sm-2">
+                    <input type="hidden" name="module_ee_tracking_all_status" value="{{ module_ee_tracking_all_status }}"/>
+                    {% if module_ee_tracking_all_status %}
+                      <a onclick="clickAll($(this),$('.btn-status'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="clickAll($(this),$('.btn-status'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                  <label class="col-sm-2 control-label">
+                    <span data-toggle="tooltip" title="{{ help_all_debug }}">{{ entry_debug }}</span>
+                    <p>({{ text_configuring_only }})</p>
+                  </label>
+                  <div class="col-sm-2">
+                    <input type="hidden" name="module_ee_tracking_all_debug" value="{{ module_ee_tracking_all_debug }}"/>
+                    {% if module_ee_tracking_all_debug %}
+                      <a onclick="clickAll($(this),$('.btn-debug'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="clickAll($(this),$('.btn-debug'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                  <label class="col-sm-2 control-label">
+                    <span data-toggle="tooltip" title="{{ help_all_log }}">{{ entry_log }}</span>
+                    <p>({{ text_configuring_only }})</p>
+                  </label>
+                  <div class="col-sm-2">
+                    <input type="hidden" name="module_ee_tracking_all_log" value="{{ module_ee_tracking_all_debug }}"/>
+                    {% if module_ee_tracking_all_log %}
+                      <a onclick="clickAll($(this),$('.btn-log'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="clickAll($(this),$('.btn-log'));changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <legend>{{ legend_general }}</legend>
+                {% if stores|length > 1 and store_id == 0 %}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-multistore"><span data-toggle="tooltip" title="{{ help_multistore }}">{{ entry_multistore }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_multistore" value="{{ module_ee_tracking_multistore }}"/>
+                    {% if module_ee_tracking_multistore %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#form-group-store_id'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#form-group-store_id'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_status }}">{{ entry_global_status }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_status" value="{{ module_ee_tracking_status }}"/>
+                    {% if module_ee_tracking_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('.general-group'));changeOpacity($('.opacity-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('.general-group'));changeOpacity($('.opacity-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset class="general-group" style="display: {% if module_ee_tracking_status %}block{% else %}none{% endif %};">
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-tracking-id"><span data-toggle="tooltip" title="{{ help_tracking_id }}">{{ entry_tracking_id }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="text" name="module_ee_tracking_tracking_id" value="{{ module_ee_tracking_tracking_id }}" placeholder="{{ entry_tracking_id }}" id="input-tracking-id" class="form-control notranslate" />
+                      <div class="error-wrapper error_tracking_id"></div>
+                      <p class="text-info">{{ note_tracking_id }}</p>
+                    </div>
+                  </div>
+                  {% if store_id == 0 %}
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-order-id"><span data-toggle="tooltip" title="{{ help_order_id }}">{{ entry_order_id }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="text" name="module_ee_tracking_order_id" value="{{ module_ee_tracking_order_id }}" placeholder="{{ entry_order_id }}" id="input-order-id" class="form-control notranslate" />
+                      <div class="error-wrapper error_order_id"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-js_position"><span data-toggle="tooltip" title="{{ help_js_position }}">{{ entry_js_position }}</span></label>
+                    <div class="col-sm-10">
+                      <div class="input-group">
+                        <select name="module_ee_tracking_js_position" id="input-js_position" class="form-control">
+                          <option value="0" {% if module_ee_tracking_js_position == 0  %}selected="selected"{% endif %}>{{ text_js_position_0 }}</option>
+                          <option value="1" {% if module_ee_tracking_js_position == 1  %}selected="selected"{% endif %}>{{ text_js_position_1 }}</option>
+                          <option value="2" {% if module_ee_tracking_js_position == 2  %}selected="selected"{% endif %}>{{ text_js_position_2 }}</option>
+                          <option value="3" {% if module_ee_tracking_js_position == 3  %}selected="selected"{% endif %}>{{ text_js_position_3 }}</option>
+                        </select>
+                        {% if js_position %}
+                          <span class="js_position_status input-group-addon success"  data-toggle="tooltip" title="{{ help_success_js_position }}"><i class="fa fa-check" aria-hidden="true"></i></span>
+                        {% else %}
+                          {% if js_default %}
+                            <span class="js_position_status input-group-addon danger" data-toggle="tooltip" title="{{ help_danger_js_position }}"><i class="fa fa-times" aria-hidden="true"></i></span>
+                          {% else %}
+                            <span class="js_position_status input-group-addon warning" data-toggle="tooltip" title="{{ help_warning_js_position }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+                          {% endif %}
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-advanced">
+              <fieldset>
+                <legend>{{ legend_advanced }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-advanced_settings"><span data-toggle="tooltip" title="{{ help_advanced_settings }}">{{ entry_advanced_settings }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_advanced_settings" value="{{ module_ee_tracking_advanced_settings }}"/>
+                    {% if module_ee_tracking_advanced_settings %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-settings-group'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-settings-group'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-settings-group" style="display: {% if module_ee_tracking_advanced_settings %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-language"><span data-toggle="tooltip" title="{{ help_language }}">{{ entry_language }}</span></label>
+                    <div class="col-sm-10">
+                      <select name="module_ee_tracking_language_id" id="input-language" class="form-control">
+                        <option value="0" selected="selected">{{ text_multilingual }}</option>
+                        {% for language in languages %}
+                          <option value="{{ language.language_id }}" {% if module_ee_tracking_language_id == language.language_id  %}selected="selected"{% endif %}>{{ language.name }} ({{ language.code }})</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-currency"><span data-toggle="tooltip" title="{{ help_currency }}">{{ entry_currency }}</span></label>
+                    <div class="col-sm-10">
+                      <select name="module_ee_tracking_currency" id="input-currency" class="form-control">
+                        <option value="0" selected="selected">{{ text_multicurrency }}</option>
+                        {% for currency in currencies %}
+                          {% if module_ee_tracking_currency == currency.code  %}
+                            <option value="{{ currency.code }}" selected="selected">{{ currency.title }} ({{ currency.code }})</option>
+                          {% else %}
+                            <option value="{{ currency.code }}">{{ currency.title }} ({{ currency.code }})</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                      <p class="text-info">{{ note_currency }}</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-tax"><span data-toggle="tooltip" title="{{ help_tax }}">{{ entry_tax }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_tax" value="{{ module_ee_tracking_tax }}"/>
+                      {% if module_ee_tracking_tax %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-total_shipping"><span data-toggle="tooltip" title="{{ help_total_shipping }}">{{ entry_total_shipping }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_total_shipping" value="{{ module_ee_tracking_total_shipping }}"/>
+                      {% if module_ee_tracking_total_shipping %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-total_tax"><span data-toggle="tooltip" title="{{ help_total_tax }}">{{ entry_total_tax }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_total_tax" value="{{ module_ee_tracking_total_tax }}"/>
+                      {% if module_ee_tracking_total_tax %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-affiliation">
+                      <span data-toggle="tooltip" title="{{ help_affiliation }}">{{ entry_affiliation }}</span>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="text" name="module_ee_tracking_affiliation" value="{{ module_ee_tracking_affiliation }}" placeholder="{{ entry_affiliation }}" id="input-affiliation" class="form-control notranslate" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-product-id">
+                      <span data-toggle="tooltip" title="{{ help_product_id }}">{{ entry_product_id }}</span>
+                    </label>
+                    <div class="col-sm-10">
+                      <select name="module_ee_tracking_product_id" id="input-product_id" class="form-control">
+                        <option value="product_id" {% if module_ee_tracking_product_id is null or module_ee_tracking_product_id == 'product_id' %}selected="selected"{% endif %}>{{ text_product_id_0 }}</option>
+                        <option value="sku" {% if module_ee_tracking_product_id is defined and module_ee_tracking_product_id == 'sku' %}selected="selected"{% endif %}>{{ text_product_id_1 }}</option>
+                        <option value="model" {% if module_ee_tracking_product_id is defined and module_ee_tracking_product_id == 'model' %}selected="selected"{% endif %}>{{ text_product_id_2 }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-product-category"><span data-toggle="tooltip" title="{{ help_product_category }}">{{ entry_product_category }}</span></label>
+                    <div class="col-sm-10">
+                      <select name="module_ee_tracking_product_category" id="input-product-category" class="form-control">
+                        <option value="0" {% if module_ee_tracking_product_category is null or module_ee_tracking_product_category == 0 %}selected="selected"{% endif %}>{{ text_product_category_0 }}</option>
+                        <option value="1" {% if module_ee_tracking_product_category is defined and module_ee_tracking_product_category == 1 %}selected="selected"{% endif %}>{{ text_product_category_1 }}</option>
+                        <option value="2" {% if module_ee_tracking_product_category is defined and module_ee_tracking_product_category == 2 %}selected="selected"{% endif %}>{{ text_product_category_2 }}</option>
+                        <option value="3" {% if module_ee_tracking_product_category is defined and module_ee_tracking_product_category == 3 %}selected="selected"{% endif %}>{{ text_product_category_3 }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-compatibility"><span data-toggle="tooltip" title="{{ help_compatibility }}">{{ entry_compatibility }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_compatibility" value="{{ module_ee_tracking_compatibility }}"/>
+                      {% if module_ee_tracking_compatibility %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                      <p class="text-info">{{ note_compatibility }}</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-generate_cid"><span data-toggle="tooltip" title="{{ help_generate_cid }}">{{ entry_generate_cid }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_generate_cid" value="{{ module_ee_tracking_generate_cid }}"/>
+                      {% if module_ee_tracking_generate_cid %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                      {% else %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                      {% endif %}
+                      <p class="text-info">{{ note_generate_cid }}</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-ga_callback"><span data-toggle="tooltip" title="{{ help_ga_callback }}">{{ entry_ga_callback }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_ga_callback" value="{{ module_ee_tracking_ga_callback }}"/>
+                      {% if module_ee_tracking_ga_callback %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#callback-info'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                      {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#callback-info'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group" id="callback-info" {% if module_ee_tracking_ga_callback %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+                  <label class="col-sm-2 control-label"></label>
+                  <div class="col-sm-10">
+                    <p class="text-info">{{ note_callback }}</p>
+                    <div class="tab-pane" id="tab-callback">
+                      <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab-gtag" data-toggle="tab"><i class="fa fa-code tab-icon" aria-hidden="true"></i> Global Site Tag (gtag.js)</a></li>
+                        <li><a href="#tab-ga" data-toggle="tab"><i class="fa fa-code tab-icon" aria-hidden="true"></i> analytics.js</a></li>
+                        <li><a href="#tab-gtm" data-toggle="tab"><i class="fa fa-code tab-icon" aria-hidden="true"></i> Google Tag Manager</a></li>
+                      </ul>
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="tab-gtag">
+                          <p class="text-info">{{ text_gtag_tab }}</p>
+                          {{ text_before_changes }}
+                            <textarea wrap="off" rows="8" class="form-control notranslate">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXXX-YY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-XXXXXXXX-YY');
+</script>
+                            </textarea>
+                          {{ text_after_changes }}
+                            <textarea wrap="off" rows="10" class="form-control notranslate">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXXX-YY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-XXXXXXXX-YY', { 'send_page_view': false });
+
+  gtag('event', 'page_view', { 'event_callback': function() { ee_start = 1; } });
+</script>
+                            </textarea>
+                        </div>
+                        <div class="tab-pane" id="tab-ga">
+                          <p class="text-info">{{ text_ga_tab }}</p>
+                          {{ text_before_changes }}
+                            <textarea wrap="off" rows="8" class="form-control notranslate">
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-XXXXX-Y', 'auto');
+ga('send', 'pageview');
+</script>
+                            </textarea>
+                          {{ text_after_changes }}
+                            <textarea wrap="off" rows="8" class="form-control notranslate">
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-XXXXXXXX-YY', 'auto');
+ga('send', 'pageview', { 'hitCallback': function() { ee_start = 1; } });
+</script>
+                            </textarea>
+                        </div>
+                        <div class="tab-pane" id="tab-gtm">
+                          <p class="text-info">{{ text_gtm_tab }}</p>
+                            <textarea wrap="off" rows="5" class="form-control notranslate">
+function() {
+    return function() {
+        ee_start = 1;
+    }
+}
+                            </textarea>
+                          <br>
+                          <p>{{ text_video_instruction }}</p>
+                          <div class="video-wrapper">
+                            <iframe width="512" height="288" src="https://www.youtube.com/embed/ivH0VbUaIUs" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-impression">
+              <fieldset>
+              <legend>{{ legend_impression }}</legend>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-impression-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <input type="hidden" name="module_ee_tracking_impression_status" value="{{ module_ee_tracking_impression_status }}"/>
+                  {% if module_ee_tracking_impression_status %}
+                    <a onclick="changeStatus($(this));changeDisplay($('#advanced-impression-group'));return false;" class="btn-switcher btn-status">
+                      <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                    </a>
+                  {% else %}
+                    <a onclick="changeStatus($(this));changeDisplay($('#advanced-impression-group'));return false;" class="btn-switcher btn-status">
+                      <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+              <fieldset id="advanced-impression-group" style="display: {% if module_ee_tracking_impression_status %}block{% else %}none{% endif %};">
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-impression-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_impression_debug" value="{{ module_ee_tracking_impression_debug }}"/>
+                    {% if module_ee_tracking_impression_debug %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-impression-log">
+                    <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                    <p>({{ text_required_debug }})</p>
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_impression_log" value="{{ module_ee_tracking_impression_log }}"/>
+                    {% if module_ee_tracking_impression_log %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-click">
+              <fieldset>
+                <legend>{{ legend_click }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-click-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_click_status" value="{{ module_ee_tracking_click_status }}"/>
+                    {% if module_ee_tracking_click_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-click-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-click-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-click-group" style="display: {% if module_ee_tracking_click_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-click-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_click_debug" value="{{ module_ee_tracking_click_debug }}"/>
+                      {% if module_ee_tracking_click_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-click-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_click_log" value="{{ module_ee_tracking_click_log }}"/>
+                      {% if module_ee_tracking_click_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-detail">
+              <fieldset>
+                <legend>{{ legend_detail }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-detail-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_detail_status" value="{{ module_ee_tracking_detail_status }}"/>
+                    {% if module_ee_tracking_detail_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-detail-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-detail-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-detail-group" style="display: {% if module_ee_tracking_detail_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-detail-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_detail_debug" value="{{ module_ee_tracking_detail_debug }}"/>
+                      {% if module_ee_tracking_detail_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-detail-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_detail_log" value="{{ module_ee_tracking_detail_log }}"/>
+                      {% if module_ee_tracking_detail_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-cart">
+              <fieldset>
+                <legend>{{ legend_cart }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-cart-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_cart_status" value="{{ module_ee_tracking_cart_status }}"/>
+                    {% if module_ee_tracking_cart_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-cart-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-cart-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-cart-group" style="display: {% if module_ee_tracking_cart_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-cart-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_cart_debug" value="{{ module_ee_tracking_cart_debug }}"/>
+                      {% if module_ee_tracking_cart_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-cart-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_cart_log" value="{{ module_ee_tracking_cart_log }}"/>
+                      {% if module_ee_tracking_cart_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-checkout">
+              <fieldset>
+                <legend>{{ legend_checkout }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-checkout-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_checkout_status" value="{{ module_ee_tracking_checkout_status }}"/>
+                    {% if module_ee_tracking_checkout_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-checkout-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-checkout-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-checkout-group" style="display: {% if module_ee_tracking_checkout_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-checkout-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_checkout_debug" value="{{ module_ee_tracking_checkout_debug }}"/>
+                      {% if module_ee_tracking_checkout_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-checkout-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_checkout_log" value="{{ module_ee_tracking_checkout_log }}"/>
+                      {% if module_ee_tracking_checkout_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-checkout_custom"><span data-toggle="tooltip" title="{{ help_checkout_custom }}">{{ entry_checkout_custom }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_checkout_custom" value="{{ module_ee_tracking_checkout_custom }}"/>
+                      {% if module_ee_tracking_checkout_custom %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#checkout-url'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                      {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#checkout-url'));return false;" class="btn-switcher">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                      {% endif %}
+                      <p class="text-info notranslate">{{ note_checkout_custom }}</p>
+                    </div>
+                  </div>
+                  <div class="form-group required" id="checkout-url" style="display: {% if module_ee_tracking_checkout_custom %}block{% else %}none{% endif %};">
+                    <label class="col-sm-2 control-label" for="input-checkout_url"><span data-toggle="tooltip" title="{{ help_checkout_url }}">{{ entry_checkout_url }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" id="js_version" name="module_ee_tracking_js_version" value="{{ module_ee_tracking_js_version }}"/>
+                      {% for language in languages %}
+                        <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+                          <input type="text" name="module_ee_tracking_checkout_url[{{ language.language_id }}]" value="{{ module_ee_tracking_checkout_url[language.language_id] ? module_ee_tracking_checkout_url[language.language_id] }}" placeholder="{{ entry_checkout_url }}" class="form-control notranslate" />
+                        </div>
+                        <div class="error-wrapper error_checkout_url_{{ language.language_id }}"></div>
+                      {% endfor %}
+                      <p class="text-info notranslate">{{ note_checkout_url }}</p>
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-transaction">
+              <fieldset>
+                <legend>{{ legend_transaction }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-transaction-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_transaction_status" value="{{ module_ee_tracking_transaction_status }}"/>
+                    {% if module_ee_tracking_transaction_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-transaction-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-transaction-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-transaction-group" style="display: {% if module_ee_tracking_transaction_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-transaction-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_transaction_debug" value="{{ module_ee_tracking_transaction_debug }}"/>
+                      {% if module_ee_tracking_transaction_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-transaction-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_transaction_log" value="{{ module_ee_tracking_transaction_log }}"/>
+                      {% if module_ee_tracking_transaction_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-order-status"><span data-toggle="tooltip" title="{{ help_order_status }}">{{ entry_order_status }}</span></label>
+                    <div class="col-sm-10">
+                      <div class="well well-sm" style="height: 150px; overflow: auto;">
+                        {% for order_status in order_statuses %}
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" name="module_ee_tracking_order_status[]" value="{{ order_status.order_status_id }}" {% if module_ee_tracking_order_status is defined and order_status.order_status_id in module_ee_tracking_order_status %}checked="checked"{% endif %} />
+                              {{ order_status.name }}
+                            </label>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <div class="error-wrapper error_order_status"></div>
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-refund">
+              <fieldset>
+                <legend>{{ legend_refund }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-refund-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_refund_status" value="{{ module_ee_tracking_refund_status }}"/>
+                    {% if module_ee_tracking_refund_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-refund-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-refund-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-refund-group" style="display: {% if module_ee_tracking_refund_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-refund-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_refund_debug" value="{{ module_ee_tracking_refund_debug }}"/>
+                      {% if module_ee_tracking_refund_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-refund-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_refund_log" value="{{ module_ee_tracking_refund_log }}"/>
+                      {% if module_ee_tracking_refund_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-refund-order-status"><span data-toggle="tooltip" title="{{ help_status }}">{{ entry_order_status }}</span></label>
+                    <div class="col-sm-10">
+                      <div class="well well-sm" style="height: 150px; overflow: auto;">
+                        {% for order_status in order_statuses %}
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" name="module_ee_tracking_refund_order_status[]" value="{{ order_status.order_status_id }}" {% if module_ee_tracking_refund_order_status is defined and order_status.order_status_id in module_ee_tracking_refund_order_status %}checked="checked"{% endif %} />
+                              {{ order_status.name }}
+                            </label>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <div class="error-wrapper error_refund_order_status"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-customer-refund">
+                      <span data-toggle="tooltip" title="{{ help_customer_refund }}">{{ entry_customer_refund }}</span>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_customer_refund" value="{{ module_ee_tracking_customer_refund }}"/>
+                      {% if module_ee_tracking_customer_refund %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-promotion">
+              <fieldset>
+                <legend>{{ legend_promotion }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-promotion-status">{{ entry_status }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_promotion_status" value="{{ module_ee_tracking_promotion_status }}"/>
+                    {% if module_ee_tracking_promotion_status %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-promotion-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                      </a>
+                    {% else %}
+                      <a onclick="changeStatus($(this));changeDisplay($('#advanced-promotion-group'));return false;" class="btn-switcher btn-status">
+                        <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="advanced-promotion-group" style="display: {% if module_ee_tracking_promotion_status %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-promotion-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_promotion_debug" value="{{ module_ee_tracking_promotion_debug }}"/>
+                      {% if module_ee_tracking_promotion_debug %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-debug">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-promotion-log">
+                      <span data-toggle="tooltip" title="{{ help_log }}">{{ entry_log }}</span>
+                      <p>({{ text_required_debug }})</p>
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_promotion_log" value="{{ module_ee_tracking_promotion_log }}"/>
+                      {% if module_ee_tracking_promotion_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher btn-log">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-custom-dimension">
+              <fieldset>
+                <legend>{{ legend_custom_dimension }}</legend>
+                <table id="custom_dimension" class="table table-striped table-bordered table-hover">
+                  <thead>
+                  <tr>
+                    <td class="text-left">{{ entry_index }}</td>
+                    <td class="text-left">{{ entry_object }}</td>
+                    <td class="text-left">{{ entry_value }}</td>
+                    <td></td>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% set dimension_row = 1 %}
+                  {% set dimension_count = 20 - module_ee_tracking_custom_dimension|length %}
+                  {% for dimension in module_ee_tracking_custom_dimension %}
+                    <tr id="dimension-row{{ dimension_row }}">
+                      <td class="text-left" style="width: 10%;">
+                        <input type="text" name="module_ee_tracking_custom_dimension[{{ dimension_row }}][index]" value="{{ dimension.index }}" placeholder="{{ entry_index }}" id="input-index" class="form-control" />
+                      </td>
+                      <td class="text-left" style="width: 20%;">
+                        <select name="module_ee_tracking_custom_dimension[{{ dimension_row }}][object]" onchange="changeCdValue({{ dimension_row }})" id="select-object{{ dimension_row }}" class="form-control">
+                          <option value="1" {% if dimension.object is null or dimension.object == 1 %}selected="selected"{% endif %}>{{ text_product }}</option>
+                          <option value="2" {% if dimension.object == 2 %}selected="selected"{% endif %}>{{ text_order }}</option>
+                        </select>
+                      </td>
+                      <td class="text-right">
+                        <select name="module_ee_tracking_custom_dimension[{{ dimension_row }}][value]" id="select-value{{ dimension_row }}" class="form-control">
+                          {% if dimension.object is null or dimension.object == 1 %}
+                            {% for product_column in product_columns %}
+                            <option value="{{ product_column }}" {% if dimension.value == product_column %}selected="selected"{% endif %}>{{ product_column }}</option>
+                            {% endfor %}
+                          {% else %}
+                            {% for order_column in order_columns %}
+                              <option value="{{ order_column }}" {% if dimension.value == order_column %}selected="selected"{% endif %}>{{ order_column }}</option>
+                            {% endfor %}
+                          {% endif %}
+                        </select>
+                      </td>
+                      <td class="text-right"><button type="button" onclick="$('#dimension-row{{ dimension_row }}').remove();$('#dimension-count').html(parseInt($('#dimension-count').html())+1);increaseDimensionCount();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
+                    </tr>
+                    {% set dimension_row = dimension_row + 1 %}
+                  {% endfor %}
+                  </tbody>
+                  <tfoot>
+                  <tr>
+                    <td colspan="3"><span id="dimension-count">{{ dimension_count }}</span> {{ text_dimension_left }} <br>{{ note_custom_dimension }}</td>
+                    <td class="text-right"><button type="button" onclick="addDimensionRow();" data-toggle="tooltip" title="{{ button_dimension_add }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+                  </tr>
+                  </tfoot>
+                </table>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-filter">
+              <fieldset>
+                <legend>{{ legend_filter }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-bot_filter"><span data-toggle="tooltip" title="{{ help_bot_filter }}">{{ entry_bot_filter }}</span></label>
+                  <div class="col-sm-10">
+                    <div class="text-right"><a onclick="$(this).parent().next('textarea').val('')" style="cursor: pointer;">{{ button_clear }}</a></div>
+                    <textarea wrap="off" rows="2" name="module_ee_tracking_bot_filter" class="form-control notranslate">{{ module_ee_tracking_bot_filter }}</textarea>
+                    {{ text_default }}: <span style="color: #FFA500;">bot|crawl|slurp|spider|mediapartners|google</span> <a onclick="addValue('module_ee_tracking_bot_filter', 'bot|crawl|slurp|spider|mediapartners|google', '|');" style="cursor: pointer;">+{{ text_add_this_value }}</a>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-ip_filter"><span data-toggle="tooltip" title="{{ help_ip_filter }}">{{ entry_ip_filter }}</span></label>
+                  <div class="col-sm-10">
+                    <div class="text-right"><a onclick="$(this).parent().next('textarea').val('')" style="cursor: pointer;">{{ button_clear }}</a></div>
+                    <textarea wrap="off" rows="5" name="module_ee_tracking_ip_filter" class="form-control notranslate">{{ module_ee_tracking_ip_filter }}</textarea>
+                    {{ text_your_ip }}: <span style="color: #FFA500;">{{ user_ip }}</span> <a onclick="addValue('module_ee_tracking_ip_filter', '{{ user_ip }}', '\n');" style="cursor: pointer;">+{{ text_add_this_value }}</a><br>
+                    {{ text_googlebot_ip }}: <span style="color: #FFA500;">66.249.*.*</span> <a onclick="addValue('module_ee_tracking_ip_filter', '66.249.*.*', '\n');" style="cursor: pointer;">+{{ text_add_this_value }}</a>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-admin_tracking"><span data-toggle="tooltip" title="{{ help_admin_tracking }}">{{ entry_admin_tracking }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_admin_tracking" value="{{ module_ee_tracking_admin_tracking }}"/>
+                    {% if module_ee_tracking_admin_tracking %}
+                    <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                      <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                    </a>
+                    {% else %}
+                    <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                      <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="tab-pane opacity-group {% if module_ee_tracking_status == false %}show-opacity{% endif %}" id="tab-log">
+              <fieldset>
+                <legend>{{ legend_log }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-log">{{ entry_log }}</label>
+                  <div class="col-sm-10">
+                    <input type="hidden" name="module_ee_tracking_log" value="{{ module_ee_tracking_log }}"/>
+                    {% if module_ee_tracking_log %}
+                    <a onclick="changeStatus($(this));changeDisplay($('#log-group'));return false;" class="btn-switcher btn-log">
+                      <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                    </a>
+                    {% else %}
+                    <a onclick="changeStatus($(this));changeDisplay($('#log-group'));return false;" class="btn-switcher btn-log">
+                      <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+                <fieldset id="log-group" style="display: {% if module_ee_tracking_log %}block{% else %}none{% endif %};">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-extended-log"><span data-toggle="tooltip" title="{{ help_extended_log }}">{{ entry_extended_log }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="hidden" name="module_ee_tracking_extended_log" value="{{ module_ee_tracking_extended_log }}"/>
+                      {% if module_ee_tracking_extended_log %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-on fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_enabled }}"></i>
+                        </a>
+                      {% else %}
+                        <a onclick="changeStatus($(this));return false;" class="btn-switcher">
+                          <i class="fa fa-toggle-off fa-3x" aria-hidden="true" data-toggle="tooltip" title="{{ text_disabled }}"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <textarea wrap="off" rows="18" id="logs" class="form-control notranslate">{{ log }}</textarea>
+                      <br>
+                      <div class="text-center">
+                        <a href="#" class="btn btn-info" onclick="updateLog($(this),'{{ module_name }}{{ store_id }}.log',$('textarea[id=\'logs\']'));return false;" data-loading-text="<i class='fa fa-spinner fa-pulse'></i> {{ text_loading }}">
+                          <i class="fa fa-refresh"></i> {{ button_update }}
+                        </a>
+                        <a href="#" class="btn btn-warning" onclick="clearLog($(this),'{{ module_name }}{{ store_id }}.log',$('textarea[id=\'logs\']'));return false;" data-loading-text="<i class='fa fa-spinner fa-pulse'></i> {{ text_loading }}">
+                          <i class="fa fa-eraser"></i> {{ button_clear }}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </fieldset>
+            </div>
+            {% if store_id == 0 %}
+            <div class="tab-pane" id="tab-help">
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab-support-request" data-toggle="tab" onclick="loadIframe('iframe-support-request');"><i class="fa fa-ticket tab-icon" aria-hidden="true"></i> {{ tab_support }}</a></li>
+                <li><a href="#tab-faq" data-toggle="tab" onclick="loadIframe('iframe-faq');"><i class="fa fa-question-circle tab-icon" aria-hidden="true"></i> {{ tab_faq }}</a></li>
+                <li><a href="#tab-changelog" data-toggle="tab" onclick="loadIframe('iframe-changelog');"><i class="fa fa-code-fork tab-icon" aria-hidden="true"></i> {{ tab_changelog }}</a></li>
+                <li><a href="#tab-about" data-toggle="tab" onclick="loadIframe('iframe-about');"><i class="fa fa-info-circle tab-icon" aria-hidden="true"></i> {{ tab_about }}</a></li>
+                <li><a href="#tab-offline" data-toggle="tab"><i class="fa fa-power-off tab-icon" aria-hidden="true"></i> {{ tab_offline }}</a></li>
+              </ul>
+              <div class="tab-content">
+                <div class="tab-pane active" id="tab-support-request">
+                  <iframe frameborder="0" id="iframe-support-request" data-src="{{ dev_site }}/support-request-iframe?extension_id={{ module_id }}&e_version={{ module_version }}&opencart={{ oc_version }}&site={{ site_url }}&email={{ config_email }}&order_id={{ module_ee_tracking_order_id }}" style="height:500px; width: 100%;"></iframe>
+                </div>
+                <div class="tab-pane" id="tab-faq">
+                  <iframe frameborder="0" id="iframe-faq" data-src="{{ dev_site }}/faq-iframe?extension_id={{ module_id }}&category_id=1&opencart={{ oc_version }}" style="height:400px; width: 100%;"></iframe>
+                </div>
+                <div class="tab-pane" id="tab-changelog">
+                  <iframe frameborder="0" id="iframe-changelog" data-src="{{ dev_site }}/changelog-iframe?extension_id={{ module_id }}" style="height:300px; width: 100%;"></iframe>
+                </div>
+                <div class="tab-pane" id="tab-about">
+                  <iframe frameborder="0" id="iframe-about" data-src="{{ dev_site }}/about-iframe?extension_id={{ module_id }}&e_version={{ module_version }}&custom={{ module_custom }}" style="height:300px; width: 100%;"></iframe>
+                </div>
+                <div class="tab-pane" id="tab-offline">
+                  <div class="col-sm-6">
+                    <p>{{ text_extension }}: <a href="{{ oc_page }}" target="_blank">{{ heading_title_main }}</a> {% if module_custom %}<span data-toggle="tooltip" title="{{ text_custom }}">[custom-built]</span>{% endif %}</p>
+                    <p>{{ text_author }}: <a href="{{ dev_site }}" target="_blank">{{  author|upper }}</a></p>
+                    <p>{{ text_version }}: {{ module_version }}</p>
+                  </div>
+                  <div class="col-sm-6">
+                    <p>
+                      <a href="{{ dev_site }}/support-request?extension_id={{ module_id }}&e_version={{ module_version }}&opencart={{ oc_version }}&site={{ site_url }}&email={{ config_email }}&order_id={{ module_ee_tracking_order_id }}" target="_blank" type="button" class="btn btn-warning btn-module-info">{{ text_support }}</a>
+                      <a href="{{ dev_site }}/faq?extension_id={{ module_id }}&category_id=1&opencart={{ oc_version }}" target="_blank" type="button" class="btn btn-danger btn-module-info">{{ text_faq }}</a>
+                      <a href="{{ dev_site }}/enhanced-ecommerce-tracking-in-google-analytics" target="_blank" type="button" class="btn btn-primary btn-module-info">{{ text_changelog }}</a>
+                    </p>
+                    <p>
+                      <a href="{{ oc_page }}" target="_blank" type="button" class="btn btn-info btn-module-info">{{ text_opencart_page }}</a>
+                      <a href="https://www.opencart.com/index.php?route=marketplace/extension&filter_member={{ author }}" target="_blank" type="button" class="btn btn-success btn-module-info">{{ text_more_extensions }}</a>
+                    </p>
+                    <p>
+                      <a href="{{ demo_site }}" target="_blank" type="button" class="btn btn-default btn-module-info">{{ text_demo_site }}</a>
+                      <a href="{{ demo_admin }}" target="_blank" type="button" class="btn btn-default btn-module-info">{{ text_demo_admin }}</a>
+                    </p>
+                    <p>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript"><!--
+    function clearLog(btn, file, element) {
+      $.ajax({
+        url: '{{ clear_log }}',
+        type: 'post',
+        data: 'file=' + file,
+        dataType: 'json',
+        beforeSend: function() {
+          btn.button('loading');
+        },
+        complete: function() {
+          btn.button('reset');
+        },
+        success: function (json) {
+          if (json.success) {
+            element.val('');
+            alert(json.success);
+          } else if (json.error) {
+            alert(json.error);
+          }
+          btn.button('reset');
+        }
+      });
+    }
+    function updateLog(btn, file, element) {
+      $.ajax({
+        url: '{{ update_log }}',
+        type: 'post',
+        data: 'file=' + file,
+        dataType: 'json',
+        beforeSend: function() {
+          btn.button('loading');
+          element.val('');
+        },
+        complete: function() {
+          btn.button('reset');
+        },
+        success: function (json) {
+          element.val(json.log);
+          btn.button('reset');
+        }
+      });
+    }
+    //--></script>
+  <script type="text/javascript"><!--
+    function addValue(name, value, separator) {
+      if (jQuery.trim($('textarea[name=\'' + name + '\']').val()) == '') {
+        $('textarea[name=\'' + name + '\']').val(value);
+      } else {
+        $('textarea[name=\'' + name + '\']').val($('textarea[name=\'' + name + '\']').val() + separator + value);
+      }
+    }
+    function changeStatus(element) {
+      if (parseInt(element.parent().find("input").val())) {
+        element.parent().find("input").val(0);
+        element.children("i").removeClass("fa-toggle-on");
+        element.children("i").addClass("fa-toggle-off");
+        element.children("i").css("color", "#A9A9A9");
+        element.children("i").attr("data-original-title", "{{ text_disabled }}");
+      } else {
+        element.parent().find("input").val(1);
+        element.children("i").removeClass("fa-toggle-off");
+        element.children("i").addClass("fa-toggle-on");
+        element.children("i").css("color", "#32CD32");
+        element.children("i").attr("data-original-title", "{{ text_enabled }}");
+      }
+    }
+    function changeDisplay(element) {
+      element.fadeToggle();
+    }
+    function changeOpacity(element) {
+      element.toggleClass('show-opacity');
+    }
+    function changeTranslator() {
+      if (confirm('{{ text_confirm }}')) {
+        if ($("input[name='translator']").val()) {
+          window.location.href = window.location.href.replace('&translator=1', '');
+        } else {
+          window.location.href = '{{ action }}&translator=1';
+        }
+      }
+    }
+    function clickAll(btn, element) {
+      element.each(function() {
+        if (btn.parent().find("input").val() == $(this).parent().find('input').val()) {
+          $(this).trigger("click");
+        }
+      });
+    }
+    function saveSettings(e) {
+      $.ajax({
+        type: 'post',
+        url: '{{ action }}',
+        data: $('#form-module').serialize(),
+        dataType: 'json',
+        beforeSend: function() {
+          e.button('loading');
+          $('.hide-screen').show();
+        },
+        complete: function() {
+         e.button('reset');
+          $('.hide-screen').hide();
+        },
+        success: function(json) {
+          $('.message-wrapper').empty();
+          $('.error-wrapper').empty();
+          $('div').removeClass('text-danger');
+          $('.form-group').removeClass('has-error');
+          if (json.success) {
+            $('.message-wrapper').html('<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            $('.js_position_status').empty();
+            if (json.js_position) {
+              $('.js_position_status').removeClass('success').removeClass('warning').removeClass('danger').addClass('success');
+              $('.js_position_status').html('<i class="fa fa-check" aria-hidden="true"></i>');
+              $('.js_position_status').tooltip('hide').attr('data-original-title', "{{ help_success_js_position }}").tooltip('fixTitle');
+            } else {
+              if (json.js_default) {
+                $('.js_position_status').removeClass('success').removeClass('warning').removeClass('danger').addClass('danger');
+                $('.js_position_status').html('<i class="fa fa-times" aria-hidden="true"></i>');
+                $('.js_position_status').tooltip('hide').attr('data-original-title', "{{ help_danger_js_position }}").tooltip('fixTitle');
+              } else {
+                $('.js_position_status').removeClass('success').removeClass('warning').removeClass('danger').addClass('warning');
+                $('.js_position_status').html('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>');
+                $('.js_position_status').tooltip('hide').attr('data-original-title', "{{ help_warning_js_position }}").tooltip('fixTitle');
+              }
+            }
+            $('#js_version').val(json.js_version);
+            if (json.info) {
+              $('.message-wrapper').append('<div class="alert alert-warning"><i class="fa fa-info-circle"></i> ' + json.info + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+          } else if (json.error) {
+            $('.message-wrapper').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json.error.warning + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            $.each(json.error, function(key, error) {
+              $('.' + key).text(error);
+              $('.' + key).addClass('text-danger');
+              $('.' + key).parent().parent('.form-group').addClass('has-error');
+            });
+          }
+          $('.hide-screen').hide();
+          $(".alert").delay(6000).fadeOut();
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log("Error: " + errorThrown + " Status: " + textStatus);
+          $('.hide-screen').hide();
+        }
+      });
+    }
+    function loadIframe(id) {
+      var iframe = document.getElementById(id);
+      if (!iframe.src) {
+        iframe.src=$('#'+id).data('src');
+      }
+    }
+    //--></script>
+  <script type="text/javascript"><!--
+    $(document).ready(function() {
+      $("select[name='store_id']").change(function() {
+        if (confirm('{{ text_confirm }}')) {
+          if (window.location.search.indexOf('store_id=') > -1) {
+            window.location.href = window.location.href.replace('store_id={{ store_id }}', 'store_id='+ $(this).val());
+          } else {
+            window.location.href = '{{ action }}&store_id='+ $(this).val();
+          }
+        } else {
+          $(this).val('{{ store_id }}');
+        }
+      });
+    });
+    //--></script>
+  <script type="text/javascript"><!--
+    $('.nav-tabs a:first').tab('show');
+    //--></script>
+  <script type="text/javascript"><!--
+    var dimension_row = {{ dimension_row }};
+    var dimension_count = {{ dimension_count }};
+    function increaseDimensionCount() {
+      dimension_count++;
+      dimension_row--;
+    }
+    function addDimensionRow() {
+      if (dimension_count) {
+        html  = '<tr id="dimension-row' + dimension_row + '">';
+        html += '  <td class="text-left" style="width: 10%;">';
+        html += '   <input type="text" name="module_ee_tracking_custom_dimension[' + dimension_row + '][index]" value="' + dimension_row + '" placeholder="{{ entry_index }}" id="input-index" class="form-control" />';
+        html += '  </td>';
+        html += '  <td class="text-left" style="width: 20%;">';
+        html += '  <select name="module_ee_tracking_custom_dimension[' + dimension_row + '][object]" onchange="changeCdValue(' + dimension_row + ');" id="select-object' + dimension_row + '" class="form-control">';
+        html += '  <option value="1" selected="selected">{{ text_product }}</option>';
+        html += '  <option value="2">{{ text_order }}</option>';
+        html += '  </select>';
+        html += '  </td>';
+        html += '  <td class="text-right">';
+        html += '  <select name="module_ee_tracking_custom_dimension[' + dimension_row + '][value]" id="select-value' + dimension_row + '" class="form-control">';
+        {% for product_column in product_columns %}
+        html += '  <option value="{{ product_column }}">{{ product_column }}</option>';
+        {% endfor %}
+        html += '  </select>';
+        html += '  </td>';
+        html += '  <td class="text-right"><button type="button" onclick="$(\'#dimension-row' + dimension_row + '\').remove();dimension_row--;$(\'#dimension-count\').html(++dimension_count);" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
+        html += '</tr>';
+
+        $('#custom_dimension tbody').append(html);
+
+        $('#dimension-count').html(--dimension_count);
+
+        dimension_row++;
+      }
+    }
+    var product_columns = {{ product_columns|json_encode() }};
+    var order_columns = {{ order_columns|json_encode() }};
+    function changeCdValue(dimension_row) {
+      $('#select-value' + dimension_row).find('option').remove();
+      if ($('#select-object' + dimension_row).val() == 2) {
+        $.each(order_columns, function(key, value) {
+          $('#select-value' + dimension_row).append($("<option></option>").attr("value",value).text(value));
+        });
+      } else {
+        $.each(product_columns, function(key, value) {
+          $('#select-value' + dimension_row).append($("<option></option>").attr("value",value).text(value));
+        });
+      }
+    }
+    //--></script>
+</div>
+{{ footer }}

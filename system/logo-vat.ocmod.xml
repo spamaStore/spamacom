@@ -1,0 +1,131 @@
+<modification>
+	<name>Store Logo to Invoice</name>
+	<version>3.0.3.1</version>
+	<link>http://opencart.zoomee.in/</link>
+	<author>Green Tech Online</author>
+	<code>4454343777444hgh</code>
+	<file path="admin/view/template/sale/order_invoice.twig">
+		<operation>
+			<search><![CDATA[
+			<h1>{{ text_invoice }} #{{ order.order_id }}</h1>
+			]]>
+			</search>
+			<add position="replace"><![CDATA[
+			<style type="text/css">
+			.store_logo {
+				width:100%;
+				height:auto;
+				text-align:left;
+				border-bottom: 1px solid #CDDDDD;
+				padding-bottom:15px;
+				padding-top:10px;
+			}
+			.store_logo .logo {
+				width:auto;
+				
+			}
+			.store_logo .logo img {
+				margin-left:0px;
+				width:200px;
+			
+			}
+			.store_logo .title {
+				font-size:24px;
+				text-transform: uppercase;
+				color:#666;
+				border-left: 1px solid #CDDDDD;
+				padding-left:20px;
+			}
+			
+			.vat {
+			font-size:20px;
+			text-align:right;
+			}
+			
+			</style>
+			
+			<div class="store_logo">
+			<div class="logo"><img src="{{ logo }}" title="{{ order.store_name }}" />
+			<span class="title">{{ text_invoice }} #{{ order.order_id }}</span></div>
+			</br><div class="vat"><b>{{ text_vat_label }}</b> {{ text_vat }} </div>
+			
+			</div><br>
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/view/template/sale/order_shipping.twig">
+		<operation>
+			<search><![CDATA[
+			<h1>{{ text_picklist }} #{{ order.order_id }}</h1>
+			]]>
+			</search>
+			<add position="replace"><![CDATA[
+			<style type="text/css">
+			.store_logo {
+				width:100%;
+				height:auto;
+				text-align:right;
+				border-bottom: 1px solid #CDDDDD;
+				padding-bottom:15px;
+				padding-top:10px;
+			}
+			.store_logo .logo {
+				width:auto;
+			}
+			.store_logo .logo img {
+				margin-right:20px;
+				width:200px;
+			}
+			.store_logo .title {
+				font-size:24px;
+				text-transform: uppercase;
+				color:#666;
+				border-left: 1px solid #CDDDDD;
+				padding-left:20px;
+			}
+			</style>
+			
+			<div class="store_logo">
+			<div class="logo"><img src="{{ logo }}" title="{{ order.store_name }}" />
+			<span class="title">{{ text_picklist }} #{{ order.order_id }}</span></div>
+			</div><br>
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/controller/sale/order.php">
+		<operation>
+			<search index="0"><![CDATA[
+			$this->load->model('setting/setting');
+			]]>
+			</search>
+			<add position="after"><![CDATA[
+			$this->load->model('tool/image');		
+		
+			if ($this->config->get('config_logo') && file_exists(DIR_IMAGE . $this->config->get('config_logo')) && is_file(DIR_IMAGE . $this->config->get('config_logo'))) {
+				$data['logo'] = $this->model_tool_image->resize($this->config->get('config_logo'), 250, 50);		
+			} else {
+				$data['logo'] = $this->model_tool_image->resize('no_image.jpg', 100, 100);
+			}
+		
+			]]></add>
+		</operation>
+		<operation>
+			<search index="1"><![CDATA[
+			$this->load->model('setting/setting');
+			]]>
+			</search>
+			<add position="after"><![CDATA[
+			$this->load->model('tool/image');		
+		
+			if ($this->config->get('config_logo') && file_exists(DIR_IMAGE . $this->config->get('config_logo')) && is_file(DIR_IMAGE . $this->config->get('config_logo'))) {
+				$data['logo'] = $this->model_tool_image->resize($this->config->get('config_logo'), 250, 50);		
+			} else {
+				$data['logo'] = $this->model_tool_image->resize('no_image.jpg', 100, 100);
+			}
+		
+			]]></add>
+		</operation>
+	</file>
+	
+</modification>
